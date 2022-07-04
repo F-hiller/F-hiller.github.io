@@ -1,5 +1,6 @@
 # adding new ignore
 Gemfile.lock
+bin/
 
 # hidden files
 .*
