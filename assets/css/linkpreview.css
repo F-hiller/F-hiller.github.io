@@ -6,26 +6,27 @@
 
 .jekyll-linkpreview-wrapper-inner {
   border: 5px solid rgba(255, 255, 255, 0.1);
-  padding: 12px;
+  padding: 10px;
 }
 
 .jekyll-linkpreview-content {
   position: relative;
-  height: 120px;
-  /* overflow: hidden; */
+  height: 160px;
+  overflow: hidden;
   margin-top: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .jekyll-linkpreview-image {
   position: absolute;
   top: 0;
+  bottom: 0;
   right: 0;
 }
 
 .jekyll-linkpreview-image img {
   width: 180px;
-  height: 130px;
+  height: 150px;
 }
 
 .jekyll-linkpreview-body {
@@ -48,7 +49,7 @@ h2.jekyll-linkpreview-title{
 }
 
 .jekyll-linkpreview-footer {
-  font-size: 10px;
+  font-size: 0px;
 } 
 /* .jekyll-linkpreview-wrapper {
     max-width: 600px;
