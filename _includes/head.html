@@ -116,4 +116,9 @@
   {% unless site.theme_mode %}
     {% include mode-toggle.html %}
   {% endunless %}
+
+  <!-- add mathjax -->
+  {% if page.use_math %}
+    {% include mathjax_support.html %}
+  {% endif %}
 </head>
