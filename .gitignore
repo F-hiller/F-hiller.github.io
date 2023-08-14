@@ -1,3 +1,6 @@
+# customized
+post/posts
+
 # adding new ignore
 Gemfile.lock
 bin/
