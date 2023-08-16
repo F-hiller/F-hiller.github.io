@@ -14,7 +14,7 @@ for file in post/posts/*.md; do
     code_num=$(echo $code | cut -d'-' -f2)
     code_name=$(echo $code | cut -d'-' -f1)
     
-    new_title="\"[$code_name] hello there - $code_num ($lang)\""
+    new_title="\"[$code_name] $current_title - $code_num ($lang)\""
     new_filename="${date_val}-[${code_name}]$code_num.md"
 
     # macOS와 리눅스를 모두 지원하기 위해 OS를 확인
