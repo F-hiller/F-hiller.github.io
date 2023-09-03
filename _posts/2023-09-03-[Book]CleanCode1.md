@@ -1,8 +1,8 @@
 ---
-title: "[Clean] 1주차 - Clean (0장,)"
+title: "[Clean Code] 개발 서적 읽기 - 1주차 (0~2장)"
 date: 2023-09-03 21:28:50 +0900
-categories: []
-tags: []
+categories: [Backend, books]
+tags: [clean code, book]
 #use_math: true
 ---
 # 0. 들어가면서
