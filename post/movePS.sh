@@ -30,4 +30,4 @@ for file in post/posts/*.md; do
     mv "$file" "post/before/$new_filename"
 done
 
-echo "[Success] : Files have been moved and updated!"
+echo "\033[31m[Success] : Files have been moved and updated!\033[0m"

@@ -39,4 +39,4 @@ tags: []
 */
 EOF
 
-echo "[Success] : File $filename has been created!"
+echo "\033[31m[Success] : File $filename has been created!\033[0m"

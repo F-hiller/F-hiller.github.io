@@ -10,4 +10,4 @@ git commit -m "upload with deployPosts.sh"
 
 git push
 
-echo "[Success] : Changes have been pushed to the repository!"
+echo -e "\033[31m[Success] : Changes have been pushed to the repository!\033[0m"
