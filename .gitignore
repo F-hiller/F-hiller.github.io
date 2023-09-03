@@ -1,5 +1,6 @@
 # customized
 post/posts
+post/before
 
 # adding new ignore
 Gemfile.lock
