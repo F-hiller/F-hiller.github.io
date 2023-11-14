@@ -1,0 +1,2066 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="ko"><generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator><link href="http://f-hiller.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="http://f-hiller.github.io/" rel="alternate" type="text/html" hreflang="ko" /><updated>2023-11-15T01:16:02+09:00</updated><id>http://f-hiller.github.io/feed.xml</id><title type="html">F-hiller’s blog</title><subtitle>A minimal, responsive, and powerful Jekyll theme for presenting professional writing.</subtitle><entry><title type="html">[Book] Clean Code - 8주차 (15 ~ 17장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode9/" rel="alternate" type="text/html" title="[Book] Clean Code - 8주차 (15 ~ 17장)" /><published>2023-11-14T22:52:55+09:00</published><updated>2023-11-14T22:52:55+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode9</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode9/"><![CDATA[<h1 id="junit-들여다보기--serialdate-리팩터링">JUnit 들여다보기 + SerialDate 리팩터링</h1>
+
+<p>JUnit 프레임워크는 유명한 자바 프레임워크이다. 그만큼 도움되는 코드와 생각해보고 고칠 수 있는 코드들도 존재한다.<br />
+또한, SerialDate 클래스는 JCommon 라이브러리에 존재하는 클래스로 날짜를 표현하는 자바 클래스이다.<br />
+15, 16장은 모두 JUnit과 SerialDate의 코드들을 보면서 클린 코드에 대해 점검하는 시간을 가지고 있다. 하지만, 이들을 글로 옮겨 적기에는 부적절해서 생략하며 직접 읽어보는 편이 더 도움이 되리라 생각한다.<br />
+<br /></p>
+
+<h1 id="냄새와-휴리스틱">냄새와 휴리스틱</h1>
+
+<p>지금까지 클린 코드란 어떠한 것들이었는지, 휴리스틱과 냄새에 관한 이야기들을 모두 모아서 정리 해보자.<br />
+<br /></p>
+
+<h3 id="comment-주석">Comment (주석)</h3>
+
+<ol>
+  <li>부적절한 정보 : 다른 시스템을 위한 정보는 주석으로 적절하지 않다.</li>
+  <li>쓸모 없는 주석</li>
+  <li>중복된 주석</li>
+  <li>성의 없는 주석</li>
+  <li>주석 처리된 코드<br />
+<br /></li>
+</ol>
+
+<h3 id="environment-환경">Environment (환경)</h3>
+
+<ol>
+  <li>여러 단계로 빌드해야 한다. : 하나의 빌드 과정으로 간단히 빌드할 수 있어야 한다.</li>
+  <li>여러 단계로 테스트해야 한다. : 하나의 버튼, 하나의 명령으로 테스트가 간단히 진행되어야 한다.<br />
+<br /></li>
+</ol>
+
+<h3 id="function-함수">Function (함수)</h3>
+
+<ol>
+  <li>너무 많은 인수</li>
+  <li>출력 인수 : 인수가 함수의 결과를 나타내서는 안된다.</li>
+  <li>플래그 인수 : 플래그 인수의 존재는 함수의 기능이 너무 많다는 의미를 가진다.</li>
+  <li>죽은 함수 : 호출되지 않는 함수는 제거하라.<br />
+<br /></li>
+</ol>
+
+<h3 id="general-일반">General (일반)</h3>
+
+<ol>
+  <li>한 소스 파일에 여러 언어 사용 : 자제하는 것이 좋다.</li>
+  <li>당연한 동작을 구현하지 않는다. : 다른 개발자가 당연하게 여길 만한 동작과 기능을 제공해야 한다.</li>
+  <li>경계를 올바로 처리하지 않는다. : 시간을 들여 경계 조건을 찾고 테스트하자.</li>
+  <li>안전 절차 무시 : 컴파일러 경고와 같은 안전 절차를 지켜라.</li>
+  <li>중복 발생</li>
+  <li>추상화 수준이 올바르지 못하다.</li>
+  <li>기초 클래스가 파생 클래스에 의존한다. : 기초 클래스는 파생 클래스를 모르는 상태가 일반적이다.</li>
+  <li>과도한 정보 : 캡슐화를 비롯하여 외부에 많은 정보가 보이지 않도록 하라.</li>
+  <li>죽은 코드 : 작동할 수 없는, 작동하지 않는 코드를 제거하라.</li>
+  <li>수직 분리 : 연관된 내용은 가까운 코드 범위안에 작성하라.</li>
+  <li>일관성 부족</li>
+  <li>잡동사니 : 쓸모없는 코드를 제거하라.</li>
+  <li>인위적 결함 : 관계없는 상수, 변수, 함수, 클래스들은 서로 분리하라.</li>
+  <li>기능 욕심 : 다른 클래스의 기능을 침범, 의존하지 않도록 작성하라.</li>
+  <li>선택자 인수 : 인수를 통한 동작 제어(boolean 등)는 자제하라.</li>
+  <li>모호한 의도</li>
+  <li>잘못 지운 책임 : 코드는 사용자의 기대에 맞게, 책임(기능)에 맞게 동작해야한다.</li>
+  <li>부적절한 static 함수</li>
+  <li>서술적 변수 : 읽기 쉬운 코드를 만들어준다.</li>
+  <li>이름과 기능이 일치하는 함수</li>
+  <li>알고리즘을 이해하라.</li>
+  <li>논리적 의존성은 물리적으로 드러내라.</li>
+  <li>If/Else, Switch/Case보다 다형성을 사용하라. : 다형성을 우선적으로 고려하라.</li>
+  <li>표준 표기법을 따르라.</li>
+  <li>매직 숫자는 명명된 상수로 교체하라. : 숫자만으로 의미를 이해할 수 있는 경우를 제외하면 상수로 뜻을 표현하는 것이 좋다.</li>
+  <li>정확하라.</li>
+  <li>관례보다 구조를 사용하라.</li>
+  <li>조건을 캡슐화하라.</li>
+  <li>부정 조건은 피하라.</li>
+  <li>함수는 한 가지만 해야한다.</li>
+  <li>숨겨진 시간적인 결함</li>
+  <li>일관성을 유지하라.</li>
+  <li>경계 조건을 캡슐화하라.</li>
+  <li>함수는 추상화 수준을 한 단계만 내려가야 한다.</li>
+  <li>설정 정보는 최상위 단계에 둬라.</li>
+  <li>추이적 탐색을 피하라. : 하나의 모듈은 주변 모듈을 모를수록 좋다.<br />
+<br /></li>
+</ol>
+
+<h3 id="java-자바">JAVA (자바)</h3>
+
+<ol>
+  <li>긴 import 목록을 피하고 와일드카드를 사용하라. : 와일드카드를 사용한 import는 사용의 모호함과 충돌 가능성이 존재하지만, 문제가 발생할 확률이 적고 IDE의 기능들을 사용함으로써 와일드카드 사용을 더 추천한다고 한다.</li>
+  <li>상수는 상속하지 않는다.</li>
+  <li>상수 대 Enum : <code class="language-plaintext highlighter-rouge">public static final int</code>와 같은 옛날 방식 대신 Enum을 사용하자.<br />
+<br /></li>
+</ol>
+
+<h3 id="naming-이름">Naming (이름)</h3>
+
+<ol>
+  <li>서술적인 이름을 사용하라.</li>
+  <li>적절한 추상화 수준에서 이름을 선택하라.</li>
+  <li>가능하다면 표준 명명법을 사용하라.</li>
+  <li>명확한 이름</li>
+  <li>긴 범위는 긴 이름을 사용하라.</li>
+  <li>인코딩을 피하라. : 과거 개발 환경에서 정보를 표현하기 위해 사용했던 접두어들은 이제 필요하지 않다.</li>
+  <li>이름으로 부수 효과를 설명하라.<br />
+<br /></li>
+</ol>
+
+<h3 id="test-테스트">Test (테스트)</h3>
+
+<ol>
+  <li>불충분한 테스트</li>
+  <li>커버리지 도구를 사용하라.</li>
+  <li>사소한 테스트를 건너뛰지 마라.</li>
+  <li>무시한 테스트는 모호함을 뜻한다.</li>
+  <li>경계 조건을 테스트하라.</li>
+  <li>버그 주변은 철저히 테스트하라.</li>
+  <li>실패 패턴을 살펴라.</li>
+  <li>테스트 커버리지 패턴을 살펴라.</li>
+  <li>테스트는 빨라야 한다.<br />
+<br /></li>
+</ol>
+
+<h2 id="결론">결론</h2>
+
+<p>많다면 많고, 적다면 적은 목록들이다. 이러한 디테일 하나하나가 모여서 클린 코드가 되며, 일부 규칙만을 따른다고 해서 클린 코드가 될 수 없다.<br />
+사소한 가치들이 모여서 습관, 전문가 정신, 장인 정신을 만들며 소프트웨어 장인으로 향할 수 있는 길이 될 것이다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[JUnit 들여다보기 + SerialDate 리팩터링]]></summary></entry><entry><title type="html">[Book] Clean Code - 7주차 (13, 14장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode8/" rel="alternate" type="text/html" title="[Book] Clean Code - 7주차 (13, 14장)" /><published>2023-11-08T17:22:16+09:00</published><updated>2023-11-08T17:22:16+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode8</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode8/"><![CDATA[<h1 id="동시성">동시성</h1>
+
+<h3 id="동시성이-필요한-이유">🧹동시성이 필요한 이유</h3>
+
+<p>coupling(결합)을 없애는 전략이며 what과 when을 분리하는 전략이다.<br />
+동시성을 사용함으로써 구조적 이점, 응답 시간 및 작업 처리량과 관련된 성능 향상을 이룰 수 있다. 이러한 이점으로 정보를 대규모로 분석하는 시스템에서 유용할 것이다.<br />
+<br /></p>
+
+<ul>
+  <li>미신과 오해</li>
+</ul>
+
+<ol>
+  <li>동시성은 항상 성능을 높여준다.
+동시성은 특수한 환경(여러 스레드가 프로세서를 공유하는 환경, 독립적인 계산이 충분히 많은 환경 등)에서 성능 향상을 달성할 수 있다.</li>
+  <li>동시성을 구현해도 설계는 변하지 않는다.
+단지 동시성과 관련한 기능을 추가하는 방식이 아니며 동시성을 고려함에 따라서 시스템 구조가 크게 달라진다.</li>
+  <li>웹 또는 EJB 컨테이너를 사용하면 동시성을 이해할 필요가 없다.
+컨테이너의 작동 방식, 동시 수정과 데드락 문제 해결에 대해서 알고 있어야 한다.<br />
+<br /></li>
+</ol>
+
+<ul>
+  <li>올바른 사고</li>
+</ul>
+
+<ol>
+  <li>동시성은 부하를 유발한다.
+성능 측면에서 부하를 발생시키며 코드를 추가하는 과정이 존재한다.</li>
+  <li>동시성은 복잡하다.</li>
+  <li>동시성 버그는 재현하기 어려우며 결함이 아닌 일회성 문제로 무시당하기 쉽다.</li>
+  <li>동시성을 구현하기 위해서는 설계 전략을 재고해야 한다.<br />
+<br /></li>
+</ol>
+
+<h3 id="난관">🧹난관</h3>
+
+<p>동시성은 여러 스레드가 동시에 작동하면서 잘못된 결과를 발생시키는 일부 경로(사건)가 생기는 난관이 존재하며 이를 해결할 수 있는 법을 아는 것이 중요하다.<br />
+<br /></p>
+
+<h3 id="동시성-방어-원칙">🧹동시성 방어 원칙</h3>
+
+<ul>
+  <li>단일 책임 원칙</li>
+</ul>
+
+<p>동시성은 그 자체의 복잡성으로 분리할 이유가 충분하다. 동시성은 다른 코드와는 다른, 독자적인 개발 프로세스와 난관이 존재한다. 잘못 구현한 코드는 에러를 잡기 힘들며 동시성과 관련된 에러만을 해결하는 것도 충분히 어렵다.<br />
+따라서, 동시성 코드를 다른 코드와 분리하는 것을 권장한다.<br />
+<br /></p>
+
+<ul>
+  <li>따름 정리 : 자료 범위를 제한하라</li>
+</ul>
+
+<p>여러 스레드가 동시에 접근할 수 있는 영역이 넓어질 수록 문제가 발생할 가능성이 커진다. 보호할 임계영역을 빼먹거나 DRY 위반과 같은 실수들은 버그 탐지를 어렵게 만든다.<br />
+따라서, 자료를 캡슐화하고 공유 자료를 최대한 줄이는 것을 권장한다.<br />
+<br /></p>
+
+<ul>
+  <li>따름 정리 : 자료 사본을 사용하라</li>
+</ul>
+
+<p>앞선 이야기가 공유 자료를 최대한 줄이라는 것이었는데 보다 좋은 방법이 바로 처음부터 공유하지 않는 것이다.<br />
+객체를 복사해 읽기 전용으로 사용하는 것으로 해결 가능한데, 객체 복사 비용과 동시성 문제로 인한 lock 부하를 비교해보면 이러한 방식이 도움이 될 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>따름 정리 : 스레드는 가능한 독립적으로 구현하라</li>
+</ul>
+
+<p>스레드는 혼자 존재하도록 구현하는 것이 좋다. 앞서 이야기한 자료 공유 제한부터 시작하여 클라이언트 요청 하나를 담당한다. 모든 정보는 비공유 출처에서 가져오며 로컬 변수에 저장한다.<br />
+이렇게 작업하면 다른 스레드와 동기화를 할 이유가 없어지며 동기화 문제를 일으킬 가능성을 줄일 수 있다.<br />
+<br /></p>
+
+<h3 id="라이브러리를-이해하라">🧹라이브러리를 이해하라</h3>
+
+<p>스레드를 사용할 때는 다음을 고려해보는게 좋다.</p>
+<ol>
+  <li>스레드 환경에서 안전한 컬렉션을 사용하라</li>
+  <li>서로 무관한 작업은 executor 프레임워크를 이용하라</li>
+  <li>가능하다면 스레드의 blocking을 방지하라</li>
+  <li>일부 클래스 라이브러리는 스레드 환경에서 안전하지 않다<br />
+<br /></li>
+</ol>
+
+<ul>
+  <li>스레드 환경에 안전한 컬렉션</li>
+</ul>
+
+<p>java.util.concurrent 패키지에서 제공하는 클래스들은 다중 스레드 환경에서도 안전하며 성능이 좋다.<br />
+ConcurrentHashMap은 대부분의 상황에서 HashMap보다 성능이 좋다고 한다.<br />
+그 외에도 ReentrantLock, Semaphore, CountDownLatch 등의 클래스를 활용하여 스레드 환경을 설계할 수 있다.<br />
+<br /></p>
+
+<h3 id="실행모델을-이해하라">🧹실행모델을 이해하라</h3>
+
+<p>동기화 환경, 스레드의 기반이 되는 지식들을 알아보자.</p>
+
+<ol>
+  <li>Bound Resource : 다중 스레드 환경에서는 데이터베이스 연결, 읽기/쓰기 버퍼 등의 자원이 제한적이다.</li>
+  <li>Mutual Exclusion : 한 번에 하나의 스레드만 공유 자료와 자원에 접근할 수 있다.</li>
+  <li>Starvation : 특정 스레드가 원하는 자원을 할당받지 못하고 계속 대기하고 있는 상황을 지칭한다.</li>
+  <li>Deadlock : 여러 스레드들이 서로가 가지고 있는 자원을 요청하며 무한정으로 대기하는 상태를 지칭한다.</li>
+  <li>Livelock : 락을 거는 단계에서 스레드끼리 충돌이 발생하여 대기 상황이 이어지는 경우를 지칭한다.<br />
+<br /></li>
+</ol>
+
+<ul>
+  <li>생산자와 소비자</li>
+</ul>
+
+<p>생산자, 소비자 스레드는 buffer나 queue를 사용하여 정보를 다룬다. 생산자 스레드는 정보를 채워넣으며 소비자 스레드는 정보를 사용한다.<br />
+생산자 스레드는 빈공간이 있어야 정보를 채워넣을 수 있으며 소비자 스레드는 정보가 담긴 공간이 있어야 정보를 가져와 사용할 수 있다.<br />
+이로인해 두 스레드는 서로의 작업에 대한 신호를 주고 받는데, 스레드 상에서 잘못하면 두 스레드 모두 작동 가능하지만 신호를 대기하고 있는 상황이 발생할 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>읽기와 쓰기</li>
+</ul>
+
+<p>자원을 생산하는 쓰기 스레드는 공유 자원을 생산, 변경하며 읽기 스레드는 자원(정보)를 읽고 사용한다.<br />
+잘못된 경우로 두 스레드 모두 작동 가능한 상황이지만, 서로의 신호를 기다리는 상황도 발생할 수 있다.<br />
+얼마나 빨리 처리하느냐가 중요한 작업이기에 읽기와 쓰기 스레드를 적절히 나눠가면서 사용하는 전략이 필요하다.<br />
+<br /></p>
+
+<ul>
+  <li>식사하는 철학자들</li>
+</ul>
+
+<p>동시성에 대해 이야기할 때 자주 등장하는 이야기이다. 유명한 이야기이므로 생략한다.<br />
+<a href="https://velog.io/@minseojo/%EC%9A%B4%EC%98%81%EC%B2%B4%EC%A0%9C-%EC%8B%9D%EC%82%AC%ED%95%98%EB%8A%94-%EC%B2%A0%ED%95%99%EC%9E%90-%EB%AC%B8%EC%A0%9C">식사하는 철학자들</a><br />
+<br /></p>
+
+<h3 id="동기화하는-메서드-사이에-존재하는-의존성을-이해하라">🧹동기화하는 메서드 사이에 존재하는 의존성을 이해하라</h3>
+
+<p>당연한 이야기이지만 의존성이 생기면 찾아내기 힘든 버그가 생긴다. 이러한 의존성을 없애고 개별 메서드를 보호하기 위해서 JAVA에서는 synchronized라는 개념을 지원한다.<br />
+하지만 의존성이 있는 메서드가 늘어난다면 구현과 설계를 다시 생각해보는 것이 좋다.<br />
+그럼에도 공유 객체 하나에는 여러 메서드가 필요한 상황이 생기기도 하는데 아래의 3가지 방법을 고려할 수 있다.</p>
+<ol>
+  <li>클라이언트에서 잠금 : 모든 메서드가 진행되는 동안 클라이언트에서 서버를 잠근 상태로 진행한다.</li>
+  <li>서버에서 잠금 : 서버 자체에 서버를 잠그고 모든 메서드를 실행한 후 잠금을 푸는 함수를 만든다. 이를 클라이언트가 호출한다.</li>
+  <li>연결 서버 : 잠금을 진행하는 중간 단계를 생성한다. 서버에서 잠금과 유사하지만 원래 서버는 변경되지 않는다.<br />
+<br /></li>
+</ol>
+
+<h3 id="동기화하는-부분을-작게-만들어라">🧹동기화하는 부분을 작게 만들어라</h3>
+
+<p>잠금을 실행하는 것은 부하를 가중시키므로 critical section에서만 잠금을 사용하는 것이 좋다.<br />
+즉, 동기화하는 부분을 최대한 작게 만드는 것이 좋다.<br />
+<br /></p>
+
+<h3 id="올바른-종료-코드는-구현하기-어렵다">🧹올바른 종료 코드는 구현하기 어렵다</h3>
+
+<p>영구적으로 작동하는 시스템과 일시적으로 작동 후 깔끔하게 종료하는 시스템을 구현하는 방법은 다르다.<br />
+깔끔하게 종료하는 시스템은 데드락과 같은 현상으로 구현하기 힘들다. 이들을 주의해서 알고리즘을 생각하고 구현하는 것이 중요하다.<br />
+<br /></p>
+
+<h3 id="스레드-코드-테스트">🧹스레드 코드 테스트</h3>
+
+<p>스레드 상에서 문제를 노출하는 테스트 케이스를 작성하는 것이 중요하다. 프로그램 설정과 시스템 설정, 부하 등을 바꿔가며 돌리는 것을 권장한다.<br />
+스레드를 이용하는 경우, 여러 번 다시 돌렸더니 에러가 발생하지 않고 통과하는 경우가 발생하기도 하지만 문제가 해결된 것이 아닐 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>
+    <p>말이 안되는 실패는 잠정적인 스레드 문제로 취급하라 : 시스템 실패를 일회성 실패로 간주하면 안된다.</p>
+  </li>
+  <li>
+    <p>다중 스레드를 고려하지 않은 순차 코드부터 제대로 돌게 만들자 : 스레드 없이 제대로 작동하는 코드를 우선 작성해야한다.</p>
+  </li>
+  <li>
+    <p>다중 스레드를 쓰는 코드 부분을 다양한 환경에 쉽게 끼워 넣을 수 있게 스레드 코드를 구현하라 : 유연한 코드는 중요하다.</p>
+  </li>
+  <li>
+    <p>다중 스레드를 쓰는 코드 부분을 상황에 맞게 조율할 수 있게 작성하라</p>
+  </li>
+  <li>
+    <p>프로세서 수보다 많은 스레드를 돌려보라 : 문제가 발생하는 지점을 찾기 더 쉬워진다.</p>
+  </li>
+  <li>
+    <p>다른 플랫폼에서 돌려보라</p>
+  </li>
+  <li>
+    <p>코드에 보조 코드를 넣어 돌려라. 강제로 실패를 일으키게 해보라</p>
+  </li>
+</ul>
+
+<p>보조 코드를 작성하는 데에는 2가지 방식이 있다. 최대한 에러가 발생할 것 같은 환경을 만들어서 문제점을 발견하고 해결해야한다.</p>
+
+<ol>
+  <li>
+    <p>직접 구현하기</p>
+  </li>
+  <li>
+    <p>자동화 : AOF, CGLIB, ASM과 같은 도구들이 있다.<br />
+<br /></p>
+  </li>
+</ol>
+
+<h2 id="결론">결론</h2>
+
+<p>스레드는 항상 중요하다. 동시성 환경에서 에러를 줄이기 위해서는 다음의 지식과 경험이 있어야한다.</p>
+<ol>
+  <li>SRP를 준수한다.</li>
+  <li>동시성 오류에 대한 원인을 이해한다.</li>
+  <li>사용하고 있는 라이브러리와 알고리즘을 이해한다.</li>
+  <li>임계 영역과 Lock에 대해 이해한다.<br />
+<br /></li>
+</ol>
+
+<p>동시성 환경에서는 반드시 문제가 발생하며 테스트를 주의깊게 진행해야한다.<br />
+<br /></p>
+
+<h1 id="점진적인-개선---no-contents">점진적인 개선 - No Contents.</h1>
+
+<p>해당 챕터는 코드를 작성하고 다듬으며 Clean Code를 작성해나가는 과정을 보여주는 챕터이다. 요약을 할 수 없는 챕터이며 기억이 나지 않는다면 다시 한 번 읽어보기를 바란다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[동시성]]></summary></entry><entry><title type="html">[Book] Clean Code - 6주차 (11, 12장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode7/" rel="alternate" type="text/html" title="[Book] Clean Code - 6주차 (11, 12장)" /><published>2023-10-31T23:45:42+09:00</published><updated>2023-11-09T15:28:42+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode7</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode7/"><![CDATA[<h1 id="시스템">시스템</h1>
+
+<p>한 사람이 도시 전체를 이해하지 않아도, 여러 사람들이 모여 도시를 운영해나갈 수 있다. 이러한 것이 가능한 이유가 적절한 추상화와 모듈화이다.<br />
+<br /></p>
+
+<h3 id="시스템의-제작과-사용을-분리하라">🧹시스템의 제작과 사용을 분리하라</h3>
+
+<p>건물을 제작할 때는 기중기와 승강기가 있으며 안전모에 작업복을 입은 사람들이 돌아다닌다. 반면, 건물을 사용할 때에는 기중기와 승강기는 사라지고 건물을 실제로 사용하는 사람들이 돌아다닐 것이다.<br />
+이러한 내용을 소프트웨어 단계로 옮겨본다면, 시스템은 객체를 제작하고 의존성을 연결하는 준비 과정과 준비 과정 이후 발생하는 런타임 로직을 분리해야한다.<br />
+<br /></p>
+
+<h3 id="main-분리">🧹Main 분리</h3>
+
+<p>생성과 관련한 코드는 main과 main이 호출하는 모듈로 옮기고, 나머지 시스템은 모든 객체가 생성되었고 모든 의존성이 연결되었다고 가정하는 환경이다.
+이러한 상황은 아주 간단한 로직으로 이루어진다. main 함수가 시스템에 필요한 객체를 생성한 후 애플리케이션에서 객체를 넘겨받아 사용하면 된다.<br />
+<br /></p>
+
+<ul>
+  <li>팩토리</li>
+</ul>
+
+<p>객체가 생성되는 시점을 main이 아닌 애플리케이션에서 결정해줘야하는 경우가 존재한다. 이런 경우, Abstract Factory 패턴을 사용할 수 있다.<br />
+<img src="~@source/../../../assets/img/posts/cleancode7-1.JPG" alt="" /><br />
+<br /></p>
+
+<p>이렇게 되면 LineItem을 생성하는 시점은 애플리케이션이 결정하지만, 생성 과정이나 로직은 알지 못하도록 구성할 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>의존성 주입</li>
+</ul>
+
+<p>또다른 메커니즘으로는 의존성 주입이 존재한다. 의존성 주입을 통해서 수동적인 클래스의 한계를 벗어날 수 있다.<br />
+<br /></p>
+
+<h3 id="확장">🧹확장</h3>
+
+<blockquote>
+  <p>소프트웨어 시스템은 물리적인 시스템과 다르다. 관심사를 적절히 분리해 관리한다면 소프트웨어 아키텍쳐는 점진적으로 발전할 수 있다.</p>
+</blockquote>
+
+<ul>
+  <li>횡단(cross-cutting) 관심사</li>
+</ul>
+
+<p>영속성과 같은 관심사는 애플리케이션의 자연스러운 객체 경계를 넘나드는 경향이 있으며 모든 객체가 전반적으로 동일한 방식을 이용하게 만들어야한다.<br />
+같은 명명 관례, 일관적인 트랜잭션 의미 등을 사용하는 것이 바람직한 방향이다.<br />
+<br /></p>
+
+<h3 id="자바-프록시">🧹자바 프록시</h3>
+
+<p>자바 프록시는 개별 객체나 클래스에서 메서드 호출을 감싸는 경우와 같이 단순한 상황에 적합하다. 하지만 JDK에서 제공하는 동적 프록시는 인터페이스만 지원하고 있으며 클래스 프록시를 사용하기 위해서는 여러 바이트 코드 처리 라이브러리를 사용해야한다.<br />
+하지만, 자바 프록시를 사용하면서 발생하는 코드 양과 크기가 프록시의 두 가지 단점으로 꼽히기도 한다. 따라서 프록시를 사용하는 것이 깨끗한 코드를 작성하기 어렵다고 볼 수 있다. 또한, 시스템 단위로 실행 지점을 명시할 수 있는 메커니즘을 제공하지 않는다는 점에서 사용할 이유가 적은 방식이다.<br />
+<br /></p>
+
+<h3 id="순수-자바-aop-프레임워크">🧹순수 자바 AOP 프레임워크</h3>
+
+<p>자바 프록시를 사용하지 않고 이를 대체할 수 있는 방법 중 하나로 프레임워크의 사용이 있다. 프록시 코드는 대부분 서로 유사하여 프레임워크 도구 등으로 자동화할 수 있다. 따라서 스프링 AOP 등을 비롯한 자바 프레임워크 내부에서 사용하는 프록시를 이용할 수 있다. 스프링에서는 Annotation을 이용하여 코드를 더 깨끗하게 만들었으며 테스트와 유지보수를 더욱 쉽게 할 수 있게 되었다.<br />
+<br /></p>
+
+<h3 id="aspectj-관점">🧹AspectJ 관점</h3>
+
+<p>관심사를 관점으로 분리하는 가장 강력한 도구는 AspectJ언어라고 한다. 자바 언어의 확장으로 스프링 AOP와 같이 순수 자바 방식으로도 다룰 수 없는 복잡한 상황을 해결해줄 수 있다는 장점이 있지만 새로운 도구와 언어 문법을 익혀야한다는 것이 단점으로 꼽힌다.<br />
+<br /></p>
+
+<h3 id="테스트-주도-시스템-아키텍처-구축">🧹테스트 주도 시스템 아키텍처 구축</h3>
+
+<p>앞에서 이야기한 내용들을 토대로 애플리케이션 도메인 논리를 POJO로 작성한다면 테스트 주도 아키텍처 구축이 가능해지며 여러 기능, 기술들이 추가되며 복잡한 아키텍쳐로 키워갈 수 있다.</p>
+<blockquote>
+  <p>최선의 시스템 구조는 각기 POJO 객체로 구현되는 모듈화된 관심사 영역으로 구성된다. 이렇게 서로 다른 영역은 해당 영역 코드에 최소한의 영향을 미치는 관점이나 유사한 도구를 사용해 통합한다. 이런 구조 역시 코드와 마찬가지로 테스트 주도 기법을 적용할 수 있다.<br />
+<br /></p>
+</blockquote>
+
+<h3 id="의사-결정을-최적화하라">🧹의사 결정을 최적화하라</h3>
+
+<blockquote>
+  <p>관심사를 모듈로 분리한 POJO 시스템은 기민함을 제공한다. 이런 기민함 덕택에 최신 정보에 기반해 최선의 시점에 최적의 결정을 내리기가 쉬워진다. 또한 결정의 복잡성도 줄어든다.<br />
+<br /></p>
+</blockquote>
+
+<h3 id="명백한-가치가-있을-때-표준을-현명하게-사용하라">🧹명백한 가치가 있을 때 표준을 현명하게 사용하라</h3>
+
+<blockquote>
+  <p>표준을 사용하면 아이디어와 컴포넌트를 재사용하기 쉽고, 적절한 경험을 가진 사람을 구하기 쉬우며, 좋은 아이디어를 캡슐화하기 쉽고, 컴포넌트를 엮기 쉽다. 하지만 때로는 표준을 만드는 시간이 너무 오래 걸려 업계가 기다리지 못한다. 어떤 표준은 원래 표준을 제정한 목적을 잊어버리기도 한다.<br />
+<br /></p>
+</blockquote>
+
+<h3 id="시스템은-도메인-특화-언어가-필요하다">🧹시스템은 도메인 특화 언어가 필요하다</h3>
+
+<blockquote>
+  <p>도메인 특화 언어 DSL을 사용하면 고차원 정책에서 저차원 세부사항에 이르기까지 모든 추상화 수준과 모든 도메인을 POJO로 표현할 수 있다.<br />
+<br /></p>
+</blockquote>
+
+<h2 id="결론">결론</h2>
+
+<p>모든 추상화 단계에서 의도는 명확히 표현해야한다. 그러기 위해서는 POJO를 작성하고 관점 혹은 관점과 유사한 메커니즘을 사용해 각 구현 관심사를 분리해야한다.<br />
+아직은 해당 챕터의 내용을 전부 이해하지는 못했다. POJO, AOP는 아직까지 완벽히 이해하기 어려운 것 같다. 관련 코드를 자주 접하다보면 자연스럽게 이해할 날이 올 것이라고 생각한다.<br />
+<br /></p>
+
+<h1 id="창발성">창발성</h1>
+
+<p>켄트 벡이 이야기하는 단순한 설계 규칙 4가지가 소프트웨어 설게 품질을 크게 높여준다고 한다.</p>
+<ol>
+  <li>모든 테스트를 실행한다</li>
+  <li>중복을 없앤다</li>
+  <li>프로그래머 의도를 표현한다</li>
+  <li>클래스와 메서드 수를 최소로 줄인다</li>
+</ol>
+
+<p>하나씩 알아보도록 하자.<br />
+<br /></p>
+
+<h3 id="모든-테스트를-실행하라">🧹모든 테스트를 실행하라</h3>
+
+<p>설계는 의도한 대로 돌아가는 시스템을 완성해야한다. 이를 인정받기 위해서는 테스트가 중요하다. 철저한 테스트가 가능한 시스템을 만들면 더 좋은 설계가 완성된다.<br />
+이는 낮은 결합도와 높은 응집력이라는 결과를 가져다 줄 것이다.<br />
+<br /></p>
+
+<h3 id="리팩터링">🧹리팩터링</h3>
+
+<p>테스트 케이스의 연장선인 리팩터링이 있다. 리팩터링을 할 때에는 코드를 수정하는 결과가 설계 품질을 낮추는지, 기존 기능을 깨뜨리지 않았는지 생각해봐야한다. 하지만, 이러한 내용들도 테스트가 잘 짜여있다면 걱정하지 않아도 된다. 이 단계에서는, 응집도 높이기, 결합도 낮추기, 관심사 분리ㅏ기, 시스템 관심사 모듈로 나누기, 함수와 클래스 크기 줄이기, 더 나은 이름 짓기 등과 같이 다양한 기법들을 동원하여 수정할 수 있다.<br />
+<br /></p>
+
+<h3 id="증복을-없애라">🧹증복을 없애라</h3>
+
+<p>중복은 추가 작업, 추가 위험, 불필요한 복잡도를 가지고 있는 커다란 적이다. 비슷한, 중복있는 코드들을 더욱 비슷하거나 아예 합쳐버리는 방향으로 나가면 리팩터링이 더 쉬워질 것이다. TEMPLATE METHOD 패턴은 고차원 중복을 제거하는 목적으로 자주 사용하는 기법이므로 알아두는 것이 좋다.<br />
+<a href="https://refactoring.guru/ko/design-patterns/template-method">TEMPLATE METHOD PATTERN</a><br />
+<br /></p>
+
+<h3 id="표현하라">🧹표현하라</h3>
+
+<p>스스로 작성하는 코드는 이해하기 쉽다. 하지만 시간이 지나거나, 다른 사람이 작성한 코드를 본다면 바로 이해하기 힘든 경우가 많다. 따라서 코드에는 개발자의 의도를 분명히 담아야한다.</p>
+<ol>
+  <li>좋은 이름 : 좋은 이름은 그 자체로 좋은 문서가 된다</li>
+  <li>함수와 클래스 크기 줄이기 : 크기가 작아질수록 구현과 이해가 쉬워진다.</li>
+  <li>표준 명칭 사용 : 표준 패턴과 관련된 이름들을 클래스 이름에 포함하는 것이 좋다.</li>
+  <li>단위 테스트 케이스 작성 : 테스트 케이스는 예제로 보여주는 문서가 될 수 있다.</li>
+  <li>노력 : 코드에 의도를 담는 노력을 하지 않으면 아무 의미가 없다.<br />
+<br /></li>
+</ol>
+
+<h3 id="클래스와-메서드-수를-최소로-줄여라">🧹클래스와 메서드 수를 최소로 줄여라</h3>
+
+<p>함수와 클래스의 길이를 줄이라고 앞서 수없이 강조했다. 하지만, 이것들도 극단으로 치닫는다면 분명 비효율적인 시점이 올 수 있다. 유지보수와 수정 단계에서 이러한 과정이 극단적이지는 않았는지 클래스와 메서드 수를 줄여보는 시도를 하는 것이 실용적일 수 있다.<br />
+<br /></p>
+
+<h2 id="결론-1">결론</h2>
+
+<p>경험을 대신할 단순한 개발 기법은 존재하지 않는다. 하지만 이러한 내용 하나하나가 한번의 경험을 대신해줄 것이라고 생각한다. 그러므로 우수한 기법과 원칙에서 기원한 설계 규칙, 패턴 등에 대해서 조금 더 공부할 필요성을 느끼고 있다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[시스템]]></summary></entry><entry><title type="html">[Book Clean Code - 5주차 (9, 10장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode6/" rel="alternate" type="text/html" title="[Book Clean Code - 5주차 (9, 10장)" /><published>2023-10-09T00:30:36+09:00</published><updated>2023-10-09T00:30:36+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode6</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode6/"><![CDATA[<h1 id="단위-테스트">단위 테스트</h1>
+
+<h3 id="tdd-법칙-3가지">🧹TDD 법칙 3가지</h3>
+
+<ol>
+  <li>실패하는 단위 테스트를 작성할 때까지 실제 코드를 작성하지 않는다.</li>
+  <li>컴파일은 실패하지 않으면서 실행이 실패하는 정도로만 단위 테스트를 작성한다.</li>
+  <li>현재 실패하는 테스트를 통과할 정도로만 실제 코드를 작성한다.<br />
+<br /></li>
+</ol>
+
+<h3 id="깨끗한-테스트-코드-유지하기">🧹깨끗한 테스트 코드 유지하기</h3>
+
+<p>테스트 코드는 추가되는 경우는 있어도 없어지는 경우는 잘 없다. 그렇기에 유지보수 비용에 포함되며 깨끗하지 않은 테스트 코드는 팀의 부담을 증가시키며 테스트 코드를 폐기하게 만드는 스노우볼이 된다.<br />
+<br /></p>
+
+<p>유연성, 유지보수성, 재사용성이 있는 테스트 코드는 코드의 변경이 쉽게 이루어지도록 도우며 시스템의 안정성을 책임진다.<br />
+<br /></p>
+
+<h3 id="깨끗한-테스트-코드">🧹깨끗한 테스트 코드</h3>
+
+<p>그렇다면 깨끗한 테스트 코드는 무엇일까?<br />
+저자는 가독성이라고 이야기한다.<br />
+테스트는 실제 코드보다도 더욱 가독성이 중시되어야한다고 이야기한다. 하지만, 실제 코드만큼 효율적일 필요는 없다.<br />
+<br /></p>
+
+<h3 id="테스트-당-assert-하나">🧹테스트 당 assert 하나</h3>
+
+<p>JUnit으로 작성한 테스트 코드는 함수마다 assert 문을 하나만 사용하라고 주장하는 사람들도 있다.<br />
+가혹하다고 여길지 몰라도 장점이 있다고 한다.<br />
+assert 문이 하나인 함수는 제시하는 결론도 하나이므로 코드를 이해하기 쉽고 빠르다. 이는, 앞서 이야기한 가독성의 측면에서 훌륭하다고 할 수 있다.<br />
+given-when-then 관례를 지키는 것도 이러한 측면이라고 볼 수 있다.<br />
+<br /></p>
+
+<p>assert 문을 하나만 쓰는 것은 분명 훌륭하다. 때에 따라서 1개만 사용하는 것이 힘들기도 하지만 assert 문의 개수는 최대한 줄이는 것이 좋은 방향이라고 한다.<br />
+<br /></p>
+
+<h3 id="테스트-당-개념-하나">🧹테스트 당 개념 하나</h3>
+
+<p>이것 저것 연속적으로 테스트하는 긴 함수는 작성하지 말라는 의미이다.<br />
+직관적으로 확인할 수 있는 규칙에 따라 함수들을 나누어서 작성하다보면 미쳐 발견하지 못한 테스트들을 추가할 수 있을 것이다.<br />
+<br /></p>
+
+<h3 id="first-규칙">🧹FIRST 규칙</h3>
+
+<p>깨끗한 테스트를 만족하는 5가지 조건이다.<br />
+<br /></p>
+
+<p>Fast : 테스트는 빨라야한다. 테스트는 여러번 돌리기 마련이다. 느리면 테스트를 진행하기 힘들어진다.<br />
+<br /></p>
+
+<p>Independent : 각 테스트는 의존성이 없어야한다. 한 테스트가 다음 테스트를 위한 발판이 되어서는 안된다.<br />
+<br /></p>
+
+<p>Repeatable : 테스트는 어떤 상황에서도 반복 가능해야한다.<br />
+<br /></p>
+
+<p>Self-Validating : 테스트는 boolean 값으로 결론나야한다. 성공 혹은 실패의 결과만이 존재해야한다. 테스트 로그나 파일들을 개발자가 직접 확인해야하는 일은 없어야 할 것이다.<br />
+<br /></p>
+
+<p>Timely : 테스트는 적절한 시기에 작성되어야한다. 단위 테스트는 테스트하려는 실제 코드를 구현하기 직전에 구현한다.<br />
+<br /></p>
+
+<h2 id="결론">결론</h2>
+
+<p>테스트는 시스템을 유지해주는 중요한 수단이며, 소홀히 관리해서는 안된다. 또한 단일 assert, FIRST 규칙과 같은 내용들을 준수하면서 테스트 코드를 작성할 수 있도록 노력해보자.<br />
+<br /></p>
+
+<h1 id="클래스">클래스</h1>
+
+<p>지금까지의 챕터는 대부분 함수 단계에서의 깨끗함에 대해 이야기해왔다. 하지만 코드란 것은 함수만으로 이루어진 것이 아니며 더 높은 차원, 클래스의 깨끗함에도 신경을 써야한다. 이번에는 클래스에 대해서 이야기해보도록 하자.</p>
+
+<h3 id="클래스-체계">🧹클래스 체계</h3>
+
+<p>클래스를 정의하는 표준 자바 관례에 따르면 처음에는 변수 목록이 나온다. static public 상수가 가장 먼저, 그 뒤를 이어서 static private 변수, private 인스턴스 변수가 나온다. 클래스 상에서 public 변수를 사용하는 경우는 거의 없다고 볼 수 있다. 그 이후에는 public 함수가 나온다. private 함수는 자신을 호출하는 public 함수 직후에 나온다. 이렇듯, 추상화 단계가 순차적으로 내려가는 방식으로 클래스를 전개한다고 볼 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>캡슐화</li>
+</ul>
+
+<p>변수와 유틸리티 함수는 공개하지 않는 편이 좋지만 테스트 환경에서의 사용과 같이 필요한 경우에는 protected로 선언에 접근을 허용하기도 한다.<br />
+그렇지만 되도록이면 캡슐화를 벗어나지 않도록 시도해보자. 캡슐화 해제는 최후의 수단이다.<br />
+<br /></p>
+
+<h3 id="클래스는-작아야-한다">🧹클래스는 작아야 한다</h3>
+
+<p>함수 단계에서 이야기한 맥락과 유사하면서도 차이점이 존재한다. 클래스의 설계 방향이 작아야 한다는 점이 유사하다. 하지만 함수의 경우 물리적인 행의 길이가 작아야한다는 방향성을 지니고 있었지만 클래스의 경우에는 해당 클래스가 가지고 있는 책임이 작아야한다는 것이다.  <br />
+<br /></p>
+
+<p>클래스의 이름은 클래스의 책임을 기술하고 있으며 작명을 잘하는 것이 클래스의 책임을 명확히하는 길이다. 이름에 Processor, Manager, Super와 같이 모호하거나 범위가 방대한 내용이 포함되었다면 클래스가 여러 책임을 가지고 있지는 않은가 생각해보자.<br />
+또한 클래스의 설명이 만약(if), 그리고(and), ~하며(or), 하지만(but)을 사용하지 않고 25단어 내외로 가능해야한다고 한다. 너무 구체적인 지시이긴 하지만, 결국 말이 길어질 정도로 책임과 조건이 많아서는 안된다는 의미일 것이다. 다음의 코드를 예시로 들 수 있다.<br />
+<br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SuperDashBoard</span> <span class="kd">extends</span> <span class="nc">JFrame</span> <span class="kd">implements</span> <span class="nc">MetaDataUser</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">Component</span> <span class="nf">getLastFocusedComponent</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setLastFocused</span><span class="o">(</span><span class="nc">Component</span> <span class="n">lastFocused</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getMajorVersionNumber</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getMinorversionNumber</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getBuildNumber</span><span class="o">();</span> 
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<p>위 클래스를 설명하려면 어떻게 해야할까? “SuperDashBoard 클래스는 마지막으로 포커스를 얻었던 컴포넌트에 접근하는 방법을 제공하며, 버전과 빌드 번호를 추적하는 메커니즘을 제공한다.”와 같이 설명할 수 있다고 한다. “~하며”가 사용되었으므로 책임이 많은 클래스라고 볼 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>단일 책임 원칙</li>
+</ul>
+
+<p>SOLID 원칙의 1번째 원칙인 Single Responsibility Principle은 클래스나 모듈을 변경할 이유가 단 하나여야한다는 원칙이다. 이는 클래스가 하나의 책임을 가져야한다는 뜻이기도 하다.<br />
+<br /></p>
+
+<ul>
+  <li>응집도 Cohesion</li>
+</ul>
+
+<p>클래스 안의 함수와 변수가 서로 의존하며 논리적인 단위로 묶이는 것이 좋으며 이를 응집도가 높다고 이야기한다. ‘함수를 작게, 매개변수 목록을 짧게’ 전략을 따라가다 보면 몇몇 함수들만이 사용하는 인스턴스 변수가 많아지는데, 이 때가 응집도가 떨어지는 시기이며 클래스를 분리시켜야하는 지점이다.<br />
+<br /></p>
+
+<p>해당 파트에는 함수와 클래스를 쪼개면서 리팩토링하는 예제가 있는데 글로 모두 담기는 힘들어서 한 번씩 읽어보기를 바란다.</p>
+
+<h3 id="변경하기-쉬운-클래스">🧹변경하기 쉬운 클래스</h3>
+
+<p>예시로 설명을 해보자. 다음의 Sql 클래스는 변경이 필요해 리팩토링이 필요한 코드이다.<br />
+<br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sql</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">Sql</span><span class="o">(</span><span class="nc">String</span> <span class="n">table</span><span class="o">,</span> <span class="nc">Column</span><span class="o">[]</span> <span class="n">columns</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">Select</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">insert</span><span class="o">(</span><span class="nc">Object</span><span class="o">[]</span> <span class="n">fields</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">selectAll</span><span class="o">();</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">findByKey</span><span class="o">(</span><span class="nc">String</span> <span class="n">keyColumn</span><span class="o">,</span> <span class="nc">String</span> <span class="n">keyValue</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">select</span><span class="o">(</span><span class="nc">Column</span> <span class="n">column</span><span class="o">,</span> <span class="nc">String</span> <span class="n">pattern</span><span class="o">);</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">select</span><span class="o">(</span><span class="nc">Criteria</span> <span class="n">criteria</span><span class="o">);</span>
+    <span class="c1">// 이하 생략</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<p>만약 새로운 SQL 문을 지원하고자 코드를 반영한다면 반드시 Sql 클래스를 수정해야만 한다. 기존 SQL 문을 수정하려고해도 Sql 클래스를 수정해야한다. 이처럼 변경할 이유가 두 가지 이상이 될 수 있으므로 Sql 클래스는 SRP를 위반한다고 볼 수 있다. 그렇다면 아래와 같은 코드로 클래스와 함수를 분리한다면 어떻게 될까?<br />
+<br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre></td><td class="rouge-code"><pre><span class="kd">abstract</span> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sql</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">Sql</span><span class="o">(</span><span class="nc">String</span> <span class="n">table</span><span class="o">,</span> <span class="nc">Column</span><span class="o">[]</span> <span class="n">columns</span><span class="o">);</span>
+    <span class="kd">abstract</span> <span class="kd">public</span> <span class="nc">String</span> <span class="nf">generate</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CreateSql</span> <span class="kd">extends</span> <span class="nc">Sql</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">CreateSql</span><span class="o">(</span><span class="nc">String</span> <span class="n">table</span><span class="o">,</span> <span class="nc">Columns</span><span class="o">[]</span> <span class="n">columns</span><span class="o">);</span>
+    <span class="nd">@Overide</span> <span class="kd">public</span> <span class="nc">String</span> <span class="nf">generate</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SelectSql</span> <span class="kd">extends</span> <span class="nc">Sql</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">SelectSql</span><span class="o">(</span><span class="nc">String</span> <span class="n">table</span><span class="o">,</span> <span class="nc">Columns</span><span class="o">[]</span> <span class="n">columns</span><span class="o">);</span>
+    <span class="nd">@Overide</span> <span class="kd">public</span> <span class="nc">String</span> <span class="nf">generate</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">InsertSql</span> <span class="kd">extends</span> <span class="nc">Sql</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="nf">InsertSql</span><span class="o">(</span><span class="nc">String</span> <span class="n">table</span><span class="o">,</span> <span class="nc">Columns</span><span class="o">[]</span> <span class="n">columns</span><span class="o">,</span> <span class="nc">Object</span><span class="o">[]</span> <span class="n">fields</span><span class="o">);</span>
+    <span class="nd">@Overide</span> <span class="kd">public</span> <span class="nc">String</span> <span class="nf">generate</span><span class="o">();</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nf">valuesList</span><span class="o">(</span><span class="nc">Object</span><span class="o">[]</span> <span class="n">fields</span><span class="o">,</span> <span class="kd">final</span> <span class="nc">Columns</span><span class="o">[]</span> <span class="n">columns</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="c1">// 이하 생략</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<p>이렇게 작성된 경우, 클래스들이 극도로 단순해지게 되며 코드를 이해하기 쉬워진다. 함수 하나를 수정해도 다른 클래스나 함수를 건드리는 경우도 없어서 위험성이 사라졌다. 또한, 새로운 SQL 문을 추가한다고 하더라도 Sql 클래스를 상속받는 새로운 UpdateSql 클래스를 생성하면 된다. 이러한 설계는 OCP 원칙도 준수하는데, 새로운 기능을 추가하더라도 기존의 클래스들은 변경할 필요가 없이 닫혀있다.<br />
+<br /></p>
+
+<ul>
+  <li>변경으로부터 격리</li>
+</ul>
+
+<p>요구사항은 변하고 코드도 변한다. interface와 abstract class를 활용함으로써 구현이 미치는 영향을 서로 격리할 수 있다.<br />
+외부 API를 사용해서 진행하는 Portfolio 클래스가 있다고 하자. 해당 클래스에 외부 API를 바로 사용하는 것은 여러 원칙들에 어긋나며 변경으로부터 자유롭지 않다.<br />
+외부 API를 사용하는 새로운 인터페이스와 클래스를 생성한 후, 해당 클래스를 Portfolio 클래스로 가져와서 사용하는 것이 테스트에도 유용하며 시스템의 결합도를 낮춘 유연성과 재사용성이 높은 코드라고 할 수 있다.<br />
+<br /></p>
+
+<h2 id="결론-1">결론</h2>
+
+<p>이번 챕터들에서는 다양한 전략과 원칙, 규칙들이 언급되었다. 그만큼 기존에 제시된 가이드라인을 따르는 것이 중요함을 강조하는 챕터라고 생각이 되었고, SOLID 원칙과 GOF 패턴들을 다시 한 번 공부해보는 시간을 가져야겠다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[단위 테스트]]></summary></entry><entry><title type="html">[Book] Clean Code - 4주차 (7장, 8장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode5/" rel="alternate" type="text/html" title="[Book] Clean Code - 4주차 (7장, 8장)" /><published>2023-10-02T01:00:56+09:00</published><updated>2023-10-03T15:58:44+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode5</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode5/"><![CDATA[<h1 id="오류-처리">오류 처리</h1>
+
+<p>오류가 발생할 확률이 0이 되는 일은 존재하지 않는다. 오류 처리를 어떻게 하느냐에 따라 코드의 논리를 잘 드러내는지가 결정된다고 볼 수 있다.</p>
+
+<h3 id="오류-코드보다-예외를-사용하라">🧹오류 코드보다 예외를 사용하라</h3>
+
+<p>앞선 챕터들에서도 몇 번 이야기가 나왔던 이야기이다. 오래된 언어들은 예외를 지원하지 않는 경우가 많았고 오류를 처리하고 보고하는 방법이 제한적이었기에 오류 코드를 사용했다. 하지만 Java의 Try-Catch-Finally 구문과 같이 Exception 처리를 지원하는 언어라면 해당 기능을 통해서 오류 처리와 기능 부분을 구분하도록 하자.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td><td class="rouge-code"><pre><span class="c1">// class 안의 함수들이다.</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">sendShutDown</span><span class="o">(){</span>
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">tryToShutDown</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">DeviceShutDownError</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">tryToShutDown</span> <span class="o">()</span> <span class="kd">throws</span> <span class="nc">DeviceShutDownError</span> <span class="o">{</span>
+    <span class="c1">// 논리 전개...</span>
+<span class="o">}</span>
+
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<h3 id="checked-exception-vs-unchecked-exception">🧹Checked Exception VS Unchecked Exception</h3>
+
+<p>확인 예외, 미확인 예외를 명확히 알지 못해 검색을 통해 찾아보았다. <a href="https://devlog-wjdrbs96.tistory.com/351">Checked VS Unchecked</a><br />
+간단히 정리하자면 확인 예외는 반드시 try-catch를 통해서 오류 처리 코드를 작성해야하는 예외들이며, 비확인 예외는 RuntimeException의 범주에 속하는 예외들로 개발자에 의해 선택적으로 try-catch 구문을 작성할 수 있다. 확인 예외는 아래 코드와 같이 throws를 붙여줘야한다.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+    <span class="c1">// ...</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>초창기 자바는 확인 예외를 좋다고 여겼지만 현재는 Open-Closed Principle을 위반하는 문제가 있는 과정이라고 여긴다. 하위 단계 함수에서 예외를 throw한다면 해당 코드를 포함하는 모든 상위 단계 함수 선언부에 throws를 추가하여 수정해야한다.<br />
+<br /></p>
+
+<p>따라서, 확인 예외를 사용함으로써 모든 예외를 확인할 필요가 있는 경우를 제외하고는 일반적으로 Unchecked Exception의 사용을 권장한다.<br />
+<br /></p>
+
+<h3 id="호출자를-고려해-예외-클래스를-정의하라">🧹호출자를 고려해 예외 클래스를 정의하라</h3>
+
+<p>이 부분은 글을 읽어도 이해가 되지 않는 부분들이 존재해서 코드를 대부분 적어보려고 한다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td><td class="rouge-code"><pre><span class="nc">ACMEPort</span> <span class="n">port</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ACMEPort</span><span class="o">(</span><span class="mi">12</span><span class="o">);</span>
+
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">port</span><span class="o">.</span><span class="na">open</span><span class="o">();</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">DeviceReseponseException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">reportPortError</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Device response exception"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ATM1212UnlockedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">reportPortError</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Unlock exception"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span> 
+    <span class="c1">// ...</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<p>호출해서 사용하는 외부 라이브러리 API가 존재한다면 아래와 같이 Wrapper Class를 통해서 예외를 작성하는 것이 더 좋다고 한다.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+</pre></td><td class="rouge-code"><pre><span class="c1">// 사용 예시</span>
+<span class="nc">LocalPort</span> <span class="n">port</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LocalPort</span><span class="o">(</span><span class="mi">12</span><span class="o">);</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">port</span><span class="o">.</span><span class="na">open</span><span class="o">();</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">PortDeviceFailure</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">retportError</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">geMessage</span><span class="o">(),</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="c1">// ...</span>
+<span class="o">}</span>
+
+<span class="c1">// Wrapper Class 파일</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">LocalPort</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">ACMEPort</span> <span class="n">innerPort</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">LocalPort</span><span class="o">(</span><span class="n">it</span> <span class="n">portNumber</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">innerPort</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ACMEPort</span><span class="o">(</span><span class="n">portNumber</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">open</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="n">innerPort</span><span class="o">.</span><span class="na">open</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">DeviceReseponseException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">PortDeviceFailure</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">ATM1212UnlockedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="nf">PortDeviceFailure</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+        <span class="o">}</span> 
+    <span class="o">}</span>
+    <span class="c1">// ...</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>Wrapper 클래스를 통해서 외부 라이브러리와 프로그램 사이의 의존성을 줄이며, 다른 라이브러리로 전환하기에도 용이하다고 한다.<br />
+<br /></p>
+
+<h3 id="정상-흐름을-정의하라">🧹정상 흐름을 정의하라</h3>
+
+<p>try-catch 구문을 사용하지 않고도 진행할 수 있는지 확인해봐야한다.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="k">try</span> <span class="o">{</span>
+    <span class="nc">MealExpenses</span> <span class="n">expenses</span> <span class="o">=</span> <span class="n">expenseReportDAO</span><span class="o">.</span><span class="na">getMeals</span><span class="o">(</span><span class="n">employeee</span><span class="o">.</span><span class="na">getID</span><span class="o">());</span>
+    <span class="n">m_total</span> <span class="o">+=</span> <span class="n">expenses</span><span class="o">.</span><span class="na">getTotal</span><span class="o">();</span>
+<span class="o">}</span> <span class="k">catch</span><span class="o">(</span><span class="nc">MealExpensesNotFound</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">m_total</span> <span class="o">+=</span> <span class="n">getMealPerDiem</span><span class="o">();</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<p>expenses.getTotal()에서 에러를 발생하는 대신 getMealPerDiem에 해당하는 기능을 수행하면 될 것이다. 또한, expenses에 null이 올 수도 있으므로 expenseReportDAO에는 항상 MealExpenses 객체를 반환하도록 수정해주어야한다. 이를 특수 사례 패턴(Special Case Pattern)이라고 하며 클래스를 만들거나 객체를 조작해 특수 사례를 처리하는 방식이라고 한다.<br />
+<a href="https://apiumhub.com/tech-blog-barcelona/special-case-pattern/">특수 사례 패턴 1</a><br />
+<a href="https://java-design-patterns.com/patterns/special-case/#explanation">특수 사례 패턴 2</a><br />
+<br /></p>
+
+<h3 id="null을-반환하지-마라">🧹null을 반환하지 마라</h3>
+
+<p>바로 앞에서 이야기한 것처럼 메소드릐 반환 값이 null이 되는 경우 null 확인을 하지 않아서 발생하는 NullPointerException과 같은 문제가 매우 자주 발생할 수 있다. 따라서 되도록 null을 반환하지 않게, 오류가 발생하지 않도록 특수 사례 패턴의 적용을 고려해보자.<br />
+<br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="nc">List</span><span class="o">&lt;</span><span class="nc">Employee</span><span class="o">&gt;</span> <span class="n">employees</span> <span class="o">=</span> <span class="n">getEmployees</span><span class="o">();</span>
+<span class="k">if</span><span class="o">(</span><span class="n">employees</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span><span class="o">(</span><span class="nc">Employee</span> <span class="n">e</span> <span class="o">:</span> <span class="n">employees</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">totalPay</span> <span class="o">+=</span> <span class="n">e</span><span class="o">.</span><span class="na">getPay</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>만약 위 코드에서 getEmployees()라는 함수가 null 대신 Collections.emptyList()와 같이 비어있는 List를 반환한다면 if 문을 없애도 정상적으로 작동할 것이다.<br />
+<br /></p>
+
+<ul>
+  <li>null을 전달하지 마라</li>
+</ul>
+
+<p>앞에서 이야기한 내용의 연장선이다. 정상적인 인수로 null을 기대하는 API가 아니라면 메서드로 null을 전달하는 것을 최대한 피하는 것이 좋다. 만약 어떤 이유로든 null의 전달을 허용한다면 해당 문제를 처리할 코드가 필요해지며 이는 클린하지 않은 코드가 될 확률이 높아질 것이다.<br />
+<br /></p>
+
+<h2 id="결론">결론</h2>
+
+<p>이번 챕터에서는 코드를 통한 예제를 많이 가져왔다. 단순히 말로만 듣고 이해하기에는 어려운 부분들이 있어서 코드를 통해 어떤 부분에 문제가 있어서 사용해서는 안되는지 확인할 수 있었던 것 같다.<br />
+null을 인수로 넣거나 반환하는 함수를 많이 사용했었고 관련된 문제들을 많이 겪어서 책의 조언에 따라 사용하지 않아야함을 상기하게 된 것 같다.<br />
+<br /></p>
+
+<h1 id="경계">경계</h1>
+
+<p>해당 챕터에서는 외부 코드를 어떻게 클린하게 적용할 수 있을지에 대해서 이야기한다.<br />
+<br /></p>
+
+<h3 id="외부-코드-사용하기">🧹외부 코드 사용하기</h3>
+
+<p>인터페이스 제공자들은 더 많은 고객층을 확보하기 위해 적용성을 최대한으로 넓히려고 한다. 반면, 사용자들은 자신의 요구에 더 집중된 인터페이스를 요구한다. 이러한 간격 사이에서 문제점들이 발생하고는 한다.<br />
+<br /></p>
+
+<p>그 예시로, java.util.Map이 있다. Map은 광범위한 기능을 제공한다. clear() 함수로 누구나 객체의 정보를 삭제할 수 있으며 저장을 위한 객체 유형을 제한하지 않는다.<br />
+<code class="language-plaintext highlighter-rouge">Map sensors = new HashMap();</code><br />
+<code class="language-plaintext highlighter-rouge">Sensor s = (Sensor)sensors.get(sensorId);</code><br />
+이에 따라, Map이 반환하는 Object를 올바른 유형으로 바꿔주는 과정이 추가되어야하며 그 책임은 Map의 사용자에게 있다.<br />
+<br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">Map&lt;String, Sensor&gt; sensors = new HashMap&lt;Sensor&gt;();</code><br />
+<code class="language-plaintext highlighter-rouge">Sensor s = sensors.get(sensorId);</code><br />
+위 코드와 같이 사용할 수 있기는 하지만, “필요하지 않은 기능까지 제공한다”는 문제가 해결되지는 않는다.<br />
+<br /></p>
+
+<p>또한, 인터페이스도 변할 가능성이 있는 존재이기에 사용을 금지하는 시스템도 존재했다. 만약 인터페이스가 바뀐다면 바꿔야할 코드의 범위가 매우 광범위해질 것이다.<br />
+<br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Sensors</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">Map</span> <span class="n">sensors</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashMap</span><span class="o">();</span>
+    
+    <span class="kd">public</span> <span class="nc">Sensor</span> <span class="nf">getById</span><span class="o">(</span><span class="nc">String</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="o">(</span><span class="nc">Sensor</span><span class="o">)</span><span class="n">sensors</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>위 코드처럼 Map의 사용을 특정 클래스를 통해서 제공함으로써 범위를 제안하는 방법도 있다. 반드시 캡슐화를 하라는 의미는 아니며 경계를 넘어다니면서 사용하는 것은 오류를 유발할 수 있으므로 자제하라는 뜻이다.<br />
+<br /></p>
+
+<ul>
+  <li>경계 살피고 익히기</li>
+</ul>
+
+<p>외부 코드를 프로젝트에 사용하기 위해서는 코드를 익히고 통합하는 작업을 거쳐야 한다. 하지만 이는 쉬운 작업이 아니며 학습 테스트를 통해서 진행하는 것이 합리적이다. 학습 테스트는 간단한 테스트 케이스를 통해서 실제로 작동하는 방식을 확인해보는 과정으로 <code class="language-plaintext highlighter-rouge">테스트+구글링+공식문서</code>를 통해서 API에 익숙해질 수 있도록 해보자.<br />
+<br /></p>
+
+<ul>
+  <li>학습 테스트는 공짜 이상이다</li>
+</ul>
+
+<p>학습 테스트는 API 전체를 배우는 것에 비해서 필요한 지식만 확보하는 손쉬운 방법이다. 이해도를 높여주며 투자하는 노력보다 얻는 성과가 크다. API의 새로운 버전이 나오더라도 기존에 만들어둔 테스트를 통해서 다르게 작동하는지를 1차적으로 확인할 수 있다.<br />
+이러한 테스트 케이스가 없다면, 오래된 버전을 계속 사용하려는 유혹에 빠질 수 있다.<br />
+<br /></p>
+
+<h3 id="아직-존재하지-않는-코드를-사용하기">🧹아직 존재하지 않는 코드를 사용하기</h3>
+
+<p>경계는 앞서 설명한 내용들도 있지만 알지 못하는 영역에 대한 경계도 존재한다. 지식의 경계를 넘어선 코드는 작성하기 힘들며 일반적으로 프로젝트에서는 지식이 많은 부분에서 지식의 경계 쪽으로 코드를 작성해나간다. 팀 단위로 이루어진 프로젝트라면 경계 바깥 쪽은 오픈소스와 같이 외부의 코드를 이용하거나 다른 팀에서 작성하고 있을 것이다.<br />
+<br /></p>
+
+<p><a href="https://jusungpark.tistory.com/22">Adapter 패턴</a>을 사용한다면 개발자가 바라는 인터페이스를 구현하기 이전에 정의할 수 있으며 Adapter를 통해서 구현 후 발생하는 차이점들을 해결할 수 있다. 또한 Fake 클래스를 사용하면서 테스트를 진행할 수도 있게 된다.<br />
+<br /></p>
+
+<ul>
+  <li>깨끗한 경계</li>
+</ul>
+
+<p>경계에서는 변경과 같은 특별한 일들이 자주 일어난다. 경계에 위치하는 코드들은 깔끔히 분리되어야 하며 테스트 케이스를 통해 잘 관리되어야한다. 의존에 관한 문제도 외부 코드보다는 통제 가능한 팀의 코드에 존재하는게 좋다.<br />
+<br /></p>
+
+<h2 id="결론-1">결론</h2>
+
+<p>학습 테스트, Adapter 패턴에 대해서 알게 되었고 규모있는 프로젝트들에서 이러한 방식의 장점을 몸소 체험해보고 싶다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clea code" /><category term="book" /><summary type="html"><![CDATA[오류 처리]]></summary></entry><entry><title type="html">[Book] Clean Code - 3주차 (5장, 6장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode4/" rel="alternate" type="text/html" title="[Book] Clean Code - 3주차 (5장, 6장)" /><published>2023-09-17T23:30:15+09:00</published><updated>2023-10-03T15:58:44+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode4</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode4/"><![CDATA[<h1 id="형식-맞추기">형식 맞추기</h1>
+
+<p>이번 챕터는 내용들의 이해가 어렵지 않은 편이라 목록으로 쭉 나열하는 방식으로 진행해보려고 한다.<br />
+<br /></p>
+
+<ol>
+  <li>
+    <p>개념은 빈 행으로 분리하라<br />
+import, 함수처럼 의미가 분리되는 구간에는 빈 행을 넣어주는 것이 좋다.<br />
+<br /></p>
+  </li>
+  <li>
+    <p>세로 밀집도 &amp; 수직 거리<br />
+비슷한 개념끼리는 코드 상의 거리가 가까워야하며 개념 사이의 주석이나 빈 행은 최소화되는 것이 좋다.<br />
+<br /></p>
+  </li>
+  <li>
+    <p>가로 형식<br />
+적당히 짧은, 한 줄에 많아도 120자 정도의 길이가 되었으면 좋겠다. <br />
+<br /></p>
+  </li>
+  <li>
+    <p>들여쓰기<br />
+대부분의 도구에서 지원하는 들여쓰기를 적극 활용해라.<br />
+<br /></p>
+  </li>
+  <li>가짜 범위<br />
+빈 while문이나 for문은 오해를 유발할 수 있으며 사용을 자제하는 것을 추천한다. 다만, 사용했을 경우 세미콜론을 새로운 행에 작성하는 방식을 추천한다.
+    <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre></td><td class="rouge-code"><pre><span class="k">while</span> <span class="o">(</span><span class="n">dis</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">buf</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">readBufferSize</span><span class="o">))</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="o">)</span>
+<span class="o">;</span>
+</pre></td></tr></tbody></table></code></pre></div>    </div>
+    <p><br /></p>
+  </li>
+  <li>
+    <p>팀 규칙을 우선해라<br />
+합의된 규칙을 무시하는 것만큼 잘못된 행동은 없다. 팀에 속한다면 팀의 규칙을 따라라.<br />
+<br /></p>
+  </li>
+  <li>코드 자체가 최고의 표준 문서가 되도록 해라.<br />
+<br /></li>
+</ol>
+
+<h3 id="프로젝트-소개">🧹프로젝트 소개</h3>
+
+<p>해당 챕터에서 7개의 프로젝트에서 파일 길이에 대해서 소개해주는 부분이 있다. 모르는 프로젝트들이 몇몇 존재해서 알아보고자 조사를 해보았다.</p>
+
+<ol>
+  <li>
+    <p><a href="http://docs.fitnesse.org/FrontPage">FitNesse</a><br />
+간단히 설명하자면 오픈소스 인수 테스트 자동화 도구이다. Fit(Framework for integrated test)라는 테스팅 프레임워크를 사용하며 이해관계자(고객, 개발자)들의 협업을 돕는 것을 목표로 한다.<br />
+<br /></p>
+  </li>
+  <li>
+    <p><a href="https://testng.org/doc/">testNG</a><br />
+JUnit과 유사한 자바 테스트 프레임워크이다.<br />
+<br /></p>
+  </li>
+  <li>
+    <p>Time and Money (tam)<br />
+검색해보았으나 해당 이름에 맞는 프로젝트를 찾지 못했다.<br />
+<br /></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/clarkware/jdepend">JDepend</a><br />
+자바 패키지 의존성 분석 도구이다. 재사용 여부, 무한 반복 의존 관계와 같은 문제점들을 조사하고 분석해주는 도구이다.<br />
+<br /></p>
+  </li>
+  <li>
+    <p><a href="https://ant.apache.org/">Ant</a><br />
+풀네임은 Apache Ant로 Java 프로그램용 build 도구라고 한다. 유사한 프로젝트로는 Tomcat이 있다.<br />
+<br /></p>
+  </li>
+</ol>
+
+<h2 id="결론">결론</h2>
+
+<p>이번 챕터에서는 “(적어도 나로서는)”과 같은 표현을 사용하며 개발자마다 느끼는 바가 다를 수 있음을 알려주는 경우가 있었으며 저자의 의견이 강하게 드러나지 않았다. 또한 “세로로 짧게 써라”, “가로로 짧게 써라”, “팀의 규칙을 우선해라”처럼 일반적인 상황에서 크게 벗어나는 내용들이 별로 많지 않았다.</p>
+
+<p>intellij와 같은 도구에서 지원하는 형식 맞추기로도 충분히 형식 맞추기를 준수할 수 있다고 생각하며 팀 규칙을 따르는 것만으로도 이번 챕터는 충분히 커버할 수 있다고 생각한다.<br />
+<br /></p>
+
+<h1 id="객체와-자료-구조">객체와 자료 구조</h1>
+
+<h3 id="자료-추상화">🧹자료 추상화</h3>
+
+<p>변수를 공개하지 않는 것은 변수에 의존하지 않게 만들기 위해서이다. 내부 작동, 변수들을 알지 않아도 추상적인 개념으로, 함수로 표현하는 것이 좋다.</p>
+
+<p>아무런 생각 없이 그저 클래스의 private 변수를 조회/설정하는 get/set 함수를 추가하는 것은 그리 좋은 방향이 아닐 것이다.<br />
+<br /></p>
+
+<h3 id="자료객체-비대칭">🧹자료/객체 비대칭</h3>
+
+<p>일반적으로 객체는 자료를 숨기며 자료를 다루는 함수만을 공개하고, 자료구조는 자료를 그대로 공개하며 별다른 함수를 제공하지 않는 경향이 있다. 이러한 특징은 절차 지향과 객체 지향에서도 드러난다.<br />
+<br /></p>
+
+<p>절차적인 코드에서 각 도형에 대한 클래스가 있고, 해당 도형들을 사용한 계산을 진행해주는 Geometry 클래스가 있다고 하자.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Square</span> <span class="o">{</span>
+   <span class="kd">public</span> <span class="nc">Point</span> <span class="n">topLeft</span><span class="o">;</span>
+   <span class="kd">public</span> <span class="kt">double</span> <span class="n">side</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Circle</span> <span class="o">{</span>
+   <span class="kd">public</span> <span class="nc">Pointer</span> <span class="n">center</span><span class="o">;</span>
+   <span class="kd">public</span> <span class="kt">double</span> <span class="n">radius</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Geometry</span> <span class="o">{</span>
+   <span class="kd">public</span> <span class="kd">final</span> <span class="kt">double</span> <span class="no">PI</span> <span class="o">=</span> <span class="mf">3.141592</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="kt">double</span> <span class="nf">area</span><span class="o">(</span><span class="nc">Object</span> <span class="n">shape</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">NoSuchShapeException</span> <span class="o">{</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">shape</span> <span class="k">instanceof</span> <span class="nc">Square</span><span class="o">)</span> <span class="o">{</span>
+         <span class="nc">Square</span> <span class="n">s</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Square</span><span class="o">)</span><span class="n">shape</span><span class="o">;</span>
+         <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="na">side</span> <span class="o">*</span> <span class="n">s</span><span class="o">.</span><span class="na">side</span><span class="o">;</span>
+      <span class="o">}</span>
+      <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">shape</span> <span class="k">instanceof</span> <span class="nc">Circle</span><span class="o">)</span> <span class="o">{</span>
+         <span class="nc">Circle</span> <span class="n">c</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Circle</span><span class="o">)</span><span class="n">shape</span><span class="o">;</span>
+         <span class="k">return</span> <span class="no">PI</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="na">radius</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="na">radius</span><span class="o">;</span>
+      <span class="o">}</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nf">NoSuchShapeException</span><span class="o">();</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>새로운 도형을 추가하는 경우, Geometry의 모든 함수에 해당 도형에 관한 내용을 추가해주어야 한다. 반면, 도형의 둘레 길이를 계산해주는 함수를 추가하고 싶을 때 도형 클래스나 다른 함수를 수정해야하는 일은 일어나지 않는다.<br />
+<br /></p>
+
+<p>객체 지향적인 도형 클래스의 경우를 살펴보자.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Square</span> <span class="kd">implements</span> <span class="nc">Shape</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="nc">Point</span> <span class="n">topLeft</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kt">double</span> <span class="n">side</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="kt">double</span> <span class="nf">area</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">side</span> <span class="o">*</span> <span class="n">side</span><span class="o">;</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Circle</span> <span class="kd">implements</span> <span class="nc">Shape</span> <span class="o">{</span>
+   <span class="kd">private</span> <span class="nc">Point</span> <span class="n">center</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kt">double</span> <span class="n">radius</span><span class="o">;</span>
+   <span class="kd">private</span> <span class="kd">final</span> <span class="kt">double</span> <span class="no">PI</span> <span class="o">=</span> <span class="mf">3.141592</span><span class="o">;</span>
+
+   <span class="kd">public</span> <span class="kt">double</span> <span class="nf">area</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="no">PI</span> <span class="o">*</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">radius</span><span class="o">;</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>새로운 도형을 추가하는 경우, 다른 도형을 수정해야하는 일은 일어나지 않는다. 반면, 도형의 둘레 길이를 계산해주는 함수를 추가하고 싶을 때 모든 도형 클래스에 함수를 추가해주어야 한다.<br />
+<br /></p>
+
+<p>이처럼 상호 보완적인 특징이 존재하며 객체와 자료 구조는 비대칭, 양분된다.</p>
+<ul>
+  <li>장점<br />
+절차적인 코드 : 기존 자료 구조를 변경하지 않으면서 새 함수를 추가하기 쉽다.
+객체 지향 코드 : 기존 함수를 변경하지 않으면서 새 클래스를 추가하기 쉽다.</li>
+  <li>단점<br />
+절차적인 코드 : 새로운 자료 구조를 추가하기 어렵다.
+객체 지향 코드 : 새로운 함수를 추가하기 어렵다.</li>
+</ul>
+
+<p>이러한 특성들을 고려하여 적절하게 사용할 수 있어야 한다.<br />
+<br /></p>
+
+<h3 id="디미터-법칙">🧹디미터 법칙</h3>
+
+<p>모듈(객체)은 자신이 조작하는 객체의 속사정을 몰라야 한다는 법칙으로 앞서 이야기한 내용들과 맥락이 비슷하다.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="kd">final</span> <span class="nc">String</span> <span class="n">outputDir</span> <span class="o">=</span> <span class="n">ctxt</span><span class="o">.</span><span class="na">getOptions</span><span class="o">().</span><span class="na">getScratchDir</span><span class="o">().</span><span class="na">getAbsolutePath</span><span class="o">();</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>다음과 같은 코드를 기차 충돌이라고 하며 일반적으로 조잡하다 여기진다고 한다. 다음과 같은 방식으로 개선하기를 권장한다.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="nc">Options</span> <span class="n">opts</span> <span class="o">=</span> <span class="n">ctxt</span><span class="o">.</span><span class="na">getOptions</span><span class="o">();</span>
+<span class="nc">File</span> <span class="n">scratchDir</span> <span class="o">=</span> <span class="n">opts</span><span class="o">.</span><span class="na">getScratchDir</span><span class="o">();</span>
+<span class="kd">final</span> <span class="nc">String</span> <span class="n">outputDir</span> <span class="o">=</span> <span class="n">scratchDir</span><span class="o">.</span><span class="na">getAbsolutePath</span><span class="o">();</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>자료 구조라면 디미터 법칙에 해당하지 않으며 다음과 같이 작성될 수 있을 것이다.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="kd">final</span> <span class="nc">String</span> <span class="n">outputDir</span> <span class="o">=</span> <span class="n">ctxt</span><span class="o">.</span><span class="na">options</span><span class="o">.</span><span class="na">scratchDir</span><span class="o">.</span><span class="na">absolutePath</span><span class="o">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<ul>
+  <li>잡종 구조</li>
+</ul>
+
+<p>이렇게 절차지향과 객체지향을 혼란하게 사용하다보면 객체와 자료 구조를 동시에 사용하고 있는 잡종 구조가 탄생하기도 한다. 되도록 피하도록 하자.<br />
+<br /></p>
+
+<h3 id="자료-전달-객체">🧹자료 전달 객체</h3>
+
+<p>일반적으로 DTO라고 부르는 자료 구조체이다.
+비공개 변수를 바탕으로 get/set 함수를 통해서 조작한다.<br />
+글쓴이는 “일종의 사이비 캡슐화”라고 표현하며 공개 변수만으로 작동하는 자료 구조체와 비교해서 큰 이점이 없다고 이야기한다.<br />
+<br /></p>
+
+<h2 id="결론-1">결론</h2>
+
+<p>객체는 동작을 공개하고 자료를 숨겨야한다.<br />
+자료 구조는 동작 없이 자료를 노출한다.<br />
+상황에 맞게 더 좋은 방식을 사용할 수 있는 개발자가 되도록 하자.<br />
+<br /></p>
+
+<p>마지막 부분에 get/set을 이용한 DTO가 그리 큰 이점이 존재하지 않는다고 보는 부분이 있었는데 본인은 일반적으로 getter를 사용해서 DTO를 작성해서 궁금증이 생겼다. 코드가 “클린”하다면 객체와 자료구조가 구분되므로 get/set을 사용하지 않아도 된다는 의견인지 궁금하다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[형식 맞추기]]></summary></entry><entry><title type="html">[Book] Clean Code - 2주차 (4장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode3/" rel="alternate" type="text/html" title="[Book] Clean Code - 2주차 (4장)" /><published>2023-09-12T23:31:29+09:00</published><updated>2023-10-03T15:58:44+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode3</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode3/"><![CDATA[<h1 id="주석">주석</h1>
+
+<p>글쓴이는 코드로 의도를 표현하지 못해 사용하는 필요악이라고 주석을 설명한다. 하지만, 그 마저도 거짓말이 많아 믿기가 힘들다고 한다. 커지는 코드 속에서 주석을 유지보수하는 것은 현실적으로 불가능하다.<br />
+<br /></p>
+
+<p>해당 파트에서 작성하는 내용들은 주로 주석의 사용에 대해 비판적인 내용들이며 사용을 자제하기를 바라는 내용들로 구성되어있다.<br />
+<br /></p>
+
+<h3 id="나쁜-코드를-보완하는-주석">🧹나쁜 코드를 보완하는 주석</h3>
+
+<p>나쁜 코드를 보완하는 주석이 좋다는 의미가 아니다. 코드에 주석을 다는 이유는 일반적으로 코드가 좋지 않아서이다.<br />
+<br /></p>
+
+<p>주석을 적을 시간에 코드를 다시 한 번 점검해보는 것이 좋을 것이다.</p>
+
+<h3 id="의미가-담긴-주석">🧹의미가 담긴 주석</h3>
+
+<p>분명, 코드만으로 설명하기 힘든 경우가 존재한다. 하지만 대부분의 경우는 코드로 의미를 전달할 수 있다.<br />
+<br /></p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1">// 직원에게 복지 혜택을 받을 자격이 있는지 검사한다.</span>
+<span class="k">if</span> <span class="o">((</span><span class="n">employee</span><span class="o">.</span><span class="na">flags</span> <span class="o">&amp;</span> <span class="no">HOURLY_FLAG</span><span class="o">)</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">employee</span><span class="o">.</span><span class="na">age</span> <span class="o">&gt;</span> <span class="mi">65</span><span class="o">))</span>
+
+<span class="o">------------------------------------------</span>
+
+<span class="k">if</span> <span class="o">(</span><span class="n">employee</span><span class="o">.</span><span class="na">isEligibleForFullBenefits</span><span class="o">())</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<p>두 문장 중 어느 쪽이 더 이해하기 쉬운가? 주석을 읽고 코드를 이해하는 것보다 코드를 통해서 바로 이해하는 것이 훨씬 좋다.</p>
+
+<h3 id="추천--좋은-주석">🧹추천 : 좋은 주석</h3>
+
+<p>몇몇 주석은 정말 필요하거나 유익하다. 이러한 사례를 아래에서 확인할 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>법적인 주석</li>
+</ul>
+
+<p>저작권, 소유권을 비롯하여 법적인 내용을 포함하는 주석. 좋고 나쁘고를 떠나서 몇몇 프로그램에서는 꼭 필요한 내용이다.<br />
+<br /></p>
+
+<ul>
+  <li>의도를 설명하는 주석</li>
+</ul>
+
+<p>코드의 이해를 도와주는 것을 넘어서 왜 이러한 함수를 사용하게 되었는지 문제 해결 방식에 대한 의도를 설명해주는 주석이 필요한 경우가 있다.<br />
+<br /></p>
+
+<ul>
+  <li>결과를 경고하는 주석</li>
+</ul>
+
+<p>어떠한 경우에 해당 함수를 사용해서는 안되는지, 사용한다면 어떤 위험성을 가지는지(Thread Safe와 같은) 알려주는 주석은 실수를 줄일 수 있다는 점에서 합리적이다.<br />
+<br /></p>
+
+<ul>
+  <li>TODO 주석</li>
+</ul>
+
+<p>앞으로 할 일에 대해서는 TODO를 작성해두면 좋다. 물론, 이는 개발 과정에 작성하는 것이며 코드 완성 단계에서는 제거해야한다.<br />
+<br /></p>
+
+<ul>
+  <li>중요성을 강조하는 주석</li>
+</ul>
+
+<p>자칫 놓칠 수 있는 점들의 중요성을 강조하는 주석은 결과를 경고하는 주석과 마찬가지로 실수를 줄여주기도 한다.<br />
+<br /></p>
+
+<ul>
+  <li>공개 API와 Javadocs</li>
+</ul>
+
+<p>설명이 잘되어있는 공개 API를 위해서 Javadocs와 같은 내용을 작성하는 것이 좋다. 하지만, 역시 주석을 달 때에는 조심해서 작성해야한다.<br />
+<br /></p>
+
+<h3 id="비추천--나쁜-주석">🧹비추천 : 나쁜 주석</h3>
+
+<p>좋은 주석과 반대로 절대해서는 안되는 주석들에 대한 내용이다.<br />
+<br /></p>
+
+<ul>
+  <li>주절거리는 주석</li>
+</ul>
+
+<p>이름만 봐도 사용해서는 안될 것 같다. 생각없이, 의무감, 기계적으로 작성하는 주석은 시간낭비다. 주석을 적는다면 최선을 다해서 적자.<br />
+<br /></p>
+
+<ul>
+  <li>같은 이야기를 하는 주석</li>
+</ul>
+
+<p>코드를 통해서 얻을 수 있는 정보들을 주석으로 반복해서 적는 것은 생산성을 떨어뜨린다. 코드에서 얻을 수 있는 정보 이상의 내용을 주석으로 적도록 하자.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="cm">/**
+ * 컨테이너와 관련된 Logger 구현
+ */</span>
+<span class="kd">protected</span> <span class="nc">Log</span> <span class="n">logger</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<ul>
+  <li>오해할 여지가 있는 주석</li>
+</ul>
+
+<p>주석을 적으면 오해의 여지가 발생하며 잘못된 사용의 코드가 작성될 수 있다.<br />
+<br /></p>
+
+<ul>
+  <li>의무적 주석</li>
+</ul>
+
+<p>설명이 필요없다. 무성의하고 배려심 없는 주석은 없는게 좋다.<br />
+<br /></p>
+
+<ul>
+  <li>이력을 기록하는 주석</li>
+</ul>
+
+<p>코드 변경 로그 형식의 주석은 버전 관리 시스템이 존재하지 않았을 시절에 유효했던 내용들이다. 이제는 완전히 제거하고 사용하자.<br />
+<br /></p>
+
+<ul>
+  <li>전역 정보</li>
+</ul>
+
+<p>너무 넓은 범위의 정보를 주석에 담아서는 안된다. 주석을 적는 주위의 코드에 대한 정보를 주석으로 담아야한다.<br />
+<br /></p>
+
+<ul>
+  <li>비공개 API와 Javadocs</li>
+</ul>
+
+<p>앞선 좋은 주석 파트에서 나온 것처럼 공개 API에서의 정리된 Javadocs는 도움이 된다. 하지만 비공개 API의 경우는 그럴 필요가 없다.<br />
+<br /></p>
+
+<h2 id="결론">결론</h2>
+
+<p>본인은 주석을 그렇게 많이 사용하는 편이 아니다. 팀프로젝트를 하는 경우에도 주석을 거의 달지 않는 편이며, 대부분의 코드 작성을 알고리즘 문제 해결을 위해 사용하여 문제 해결의 flow 정도만을 주석으로 적어두는 편이다.<br />
+<br /></p>
+
+<p>그렇기에 이번 챕터는 공감되거나 와닿는 부분이 그리 많지 않았다. 그럼에도 주석이라는 것을 신중히 사용해야함을 느꼈다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[주석]]></summary></entry><entry><title type="html">[Book] Clean Code - 2주차 (3장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode2/" rel="alternate" type="text/html" title="[Book] Clean Code - 2주차 (3장)" /><published>2023-09-12T23:20:21+09:00</published><updated>2023-09-14T01:20:37+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode2</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode2/"><![CDATA[<h1 id="함수">함수</h1>
+
+<h3 id="짧은-함수">🧹짧은 함수</h3>
+
+<p>함수는 짧을 수록 읽기 좋은 경향을 가진다.</p>
+
+<p>하나의 함수가 10줄이 안되면 좋겠다고 필자는 이야기한다.</p>
+
+<p>그렇게 되면 중첩 구조가 생기는 경우나 들여쓰기가 많아지는 경우도 발생하지 않으며 읽고 이해하기 쉬워진다.<br />
+<br /></p>
+
+<h3 id="한-가지-일을-하는-함수">🧹한 가지 일을 하는 함수</h3>
+
+<ul>
+  <li>SOLID 원칙 중 단일 책임 원칙과 유사하다는 생각이 들었다.</li>
+</ul>
+
+<p>함수는 한 가지 일만 하도록 작성해야한다.</p>
+
+<p>한 가지 일이라는 것이 모호해지는 경우가 발생하는데 이는 하나의 일을 해결하는데 여러 단계가 필요할 때다. 더 이상 하나의 이름으로 줄일 수 있는 함수가 존재하지 않는다면 그함수가 하나의 단계가 되는 것이다.<br />
+<br /></p>
+
+<h3 id="하나의-함수-하나의-추상화-수준">🧹하나의 함수, 하나의 추상화 수준</h3>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="kt">void</span> <span class="nf">Test</span> <span class="o">()</span> <span class="o">{</span>
+	<span class="n">getHtml</span><span class="o">();</span>
+	<span class="nc">String</span> <span class="n">pagePathName</span> <span class="o">=</span> <span class="nc">PathParser</span><span class="o">.</span><span class="na">render</span><span class="o">(</span><span class="n">pagePath</span><span class="o">);</span>
+	<span class="o">~.</span><span class="na">append</span><span class="o">(</span><span class="s">"\n"</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>추상화 수준은 클린 코드에서 제시하는 추상화의 정도를 측정하는 단계이다.</p>
+
+<p>getHtml()과 같이 어떻게 작동하는지 알 수 없으면 추상화 수준이 높다고 이야기하며</p>
+
+<p>.append(”\n”);과 같이 알고 있거나 직관적일수록 추상화 수준이 낮다고 이야기한다.</p>
+
+<p>String pagePathName = PathParser.render(pagepath); 과 같은 코드는 추상화 수준이 중간이라고 할 수 있겠다.<br />
+<br /></p>
+
+<p>이러한 추상화 수준을 하나의 함수에서 섞어 사용하면 안된다는 것이다.<br />
+<br /></p>
+
+<ul>
+  <li>내려가기 규칙</li>
+</ul>
+
+<p>선언된 함수의 추상화 수준은 코드가 내려가면서 함께 내려가야한다.</p>
+
+<p>즉, 아래로 갈수록 함수 단위에서 raw code로 작성될 것이다.<br />
+<br /></p>
+
+<h3 id="switch-문을-피하는-함수">🧹Switch 문을 피하는 함수</h3>
+
+<p>switch 구문은 작게 만들기 어려우며 한 가지 일을 하게 작성할 수 없다.</p>
+
+<p>해당 구문을 완벽히 배제하는 것은 불가능하므로 여러 방식을 통해서 숨기기도 한다.<br />
+<br /></p>
+
+<p>대표적인 예로, switch 구문을 추상 팩토리 방식에 숨겨 아무에게도 보여주지 않는 방식이 있다. 추상 팩토리 방식이 무엇인지 몰라 잠시 찾아보았다.</p>
+
+<ul>
+  <li>추상 팩토리</li>
+</ul>
+
+<p><a href="https://inpa.tistory.com/entry/GOF-💠-추상-팩토리Abstract-Factory-패턴-제대로-배워보자">💠 추상 팩토리(Abstract Factory) 패턴 - 완벽 마스터하기</a></p>
+
+<p>추상 클래스를 바탕으로 만들어진 팩토리 패턴을 추상 팩토리라고 한다.<br />
+<br /></p>
+
+<h3 id="서술적인-이름을-사용하는-함수">🧹서술적인 이름을 사용하는 함수</h3>
+
+<p>이름이 조금 길어지더라도 여러 부가적인 설명없이 이해 가능한 함수 이름을 작성하도록 노력하자.</p>
+
+<p>앞선 규칙들을 지키면 이름을 떠올리기가 더 쉬워질 것이다.</p>
+
+<p>일관성 있게 단어를 사용하고 배치하도록 하자.<br />
+<br /></p>
+
+<h3 id="인수가-적은-함수">🧹인수가 적은 함수</h3>
+
+<p>인수가 적을 수록 좋으며 3개 이상은 되도록이면 피하도록 하자.</p>
+
+<p>인수는 함수를 이해하기 어렵게 만들며 테스트하기도 힘들어진다.<br />
+<br /></p>
+
+<ul>
+  <li>단항 형식</li>
+</ul>
+
+<p>인수로 전달한 대상이 변하는 경우(출력 인수)는 되도록이면 피하는 것이 좋다.</p>
+
+<p>차라리 함수의 반환 값을 통해서 대상의 값을 바꾸는 것이 좋다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c1">// 해당 함수가 출력 인수를 사용하지 않으며 입력 인수를 사용하므로 더 권장하는 형태이다.</span>
+<span class="nc">StringBuffer</span> <span class="nf">transform</span><span class="o">(</span><span class="nc">StringBuffer</span> <span class="n">in</span><span class="o">){}</span>
+
+<span class="c1">// out 인수가 함수를 거치면서 값이 바뀌는 출력 인수로 해당 방식은 권장하지 않는다.</span>
+<span class="kt">void</span> <span class="nf">transform</span><span class="o">(</span><span class="nc">StringBuffer</span> <span class="n">out</span><span class="o">){}</span> 
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<ul>
+  <li>플래그 인수</li>
+</ul>
+
+<p>필자가 “추하고 끔찍하다.”고 표현할 정도로 권장하지 않는다.</p>
+
+<p>부울 형태로 들어오는 플래그 인수의 존재는 해당 함수에서 여러 가지 일을 처리하겠다는 의미라고 해석할 수 있을 것이다. (참과 거짓. 최소 2가지 경우에 따라 다른 일을 진행하므로)<br />
+<br /></p>
+
+<ul>
+  <li>이항 함수</li>
+</ul>
+
+<p>함수의 인수가 하나 더 생기면 인수 간의 순서가 생기며 해당 순서를 지키지 않아서 발생하는 실수는 매우 자주 일어난다.<br />
+<br /></p>
+
+<ul>
+  <li>삼항 함수</li>
+</ul>
+
+<p>이항 함수보다 더 이해하기 어려워지며 그에 따라 발생하는 문제도 늘어난다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="kt">double</span> <span class="nf">calcuateCircleArea</span><span class="o">(</span><span class="kt">double</span> <span class="n">x</span><span class="o">,</span> <span class="kt">double</span> <span class="n">y</span><span class="o">,</span> <span class="kt">double</span> <span class="n">radius</span><span class="o">);</span>
+
+<span class="c1">// 아래와 같이 객체로 묶어서 넘기는 것도 하나의 방법이다.</span>
+<span class="kt">double</span> <span class="nf">calcuateCircleArea</span><span class="o">(</span><span class="nc">Point</span> <span class="n">center</span><span class="o">,</span> <span class="kt">double</span> <span class="n">radius</span><span class="o">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<ul>
+  <li>인수 목록</li>
+</ul>
+
+<p>String.format()처럼 인수의 수가 가변적인 경우도 있다.</p>
+
+<p>하지만 함수의 선언부를 보면 public String format(String format, Object… args); 와 같이 이항 함수의 형태를 취하고 있다.<br />
+<br /></p>
+
+<ul>
+  <li>동사나 키워드</li>
+</ul>
+
+<p>의미론적으로 의도와 어울리는 이름이 필요하다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre></td><td class="rouge-code"><pre><span class="c1">// 두 예시 모두 아래 함수의 이름이 인수의 의미나 순서를 명확하게 드러내준다.</span>
+<span class="n">write</span><span class="o">(</span><span class="n">name</span><span class="o">);</span> 
+<span class="n">writeField</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+
+<span class="n">assertEquals</span><span class="o">(</span><span class="n">expected</span><span class="o">,</span> <span class="n">actual</span><span class="o">);</span>
+<span class="n">assertExpectedEqualsActual</span><span class="o">(</span><span class="n">expected</span><span class="o">,</span> <span class="n">actual</span><span class="o">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<h3 id="부수-효과가-없는-함수">🧹부수 효과가 없는 함수</h3>
+
+<p>함수의 기능이 이름에 명확히 드러나 있다면 예상치못한 부수 효과를 최대한 방지할 수 있을 것이다.<br />
+<br /></p>
+
+<ul>
+  <li>출력 인수</li>
+</ul>
+
+<p>일반적으로 함수에게 특정 입력값을 제공하기 위해서 인수를 사용한다.</p>
+
+<p>이를 입력 인수라고 칭하며, 인수가 함수의 결과값이 되는 경우를 출력 인수라고 한다.</p>
+
+<p>이러한 출력 인수는 피하는 것을 권장하며 상태의 변경이 필요한 경우는 함수의 객체 상태를 바꾸는 방식을 선택하기를 바란다.<br />
+<br /></p>
+
+<h3 id="명령과-조회가-분리된-함수">🧹명령과 조회가 분리된 함수</h3>
+
+<p>함수는 명령과 조회 2개의 역할 중 하나만을 선택해야한다.</p>
+
+<p>즉, 하나의 함수는 객체 상태를 변경하거나 반환해야한다. 둘을 모두 수행하는 경우는 좋지 않다.<br />
+<br /></p>
+
+<p>명령과 조회를 동시에 하는 경우 다음과 같은 일이 발생한다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">set</span><span class="o">(</span><span class="nc">String</span> <span class="n">attribute</span><span class="o">,</span> <span class="nc">String</span> <span class="n">value</span><span class="o">);</span>
+<span class="c1">//...</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">set</span><span class="o">(</span><span class="s">"username"</span><span class="o">,</span> <span class="s">"unclebob"</span><span class="o">)){...}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+
+<p>set이라는 함수를 실행한 결과가 왜 if문의 조건문에 있는지 이해하기 힘들다.</p>
+
+<p>조건문을 위한 함수와 set을 위한 함수를 분리해서 작성하도록 하자.<br />
+<br /></p>
+
+<h3 id="오류-코드보다-예외가-있는-함수">🧹오류 코드보다 예외가 있는 함수</h3>
+
+<p>오류 코드를 사용한다면 위에서 설명한 명령의 기능을 하는 함수가 조건문에 오게되는 경우가 발생한다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td><td class="rouge-code"><pre><span class="k">if</span> <span class="o">(</span><span class="n">deletePage</span><span class="o">(</span><span class="n">page</span><span class="o">)</span> <span class="o">==</span> <span class="no">E_OK</span><span class="o">){...}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<ul>
+  <li>try-catch 블록 분리하기</li>
+</ul>
+
+<p>try-catch 블록이 들여쓰기를 비롯하여 구조적 혼란을 가져오며 일반적 논리와 오류 처리를 뒤섞는다고 한다. 따라서, 별도의 함수로 분리할 수 있도록 하자.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="nc">Page</span> <span class="n">page</span><span class="o">){</span>
+	<span class="k">try</span><span class="o">{</span>
+		<span class="n">deletePageAndAllReferences</span><span class="o">(</span><span class="n">page</span><span class="o">);</span>
+	<span class="o">}</span>
+	<span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">){</span>
+		<span class="n">logError</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<ul>
+  <li>오류 처리도 하나의 작업, 기능이다.</li>
+</ul>
+
+<p>함수는 한 가지 작업만을 해야한다는 원칙으로 보았을 때, 오류를 처리하는 함수는 오직 오류만을 처리해야한다.<br />
+<br /></p>
+
+<ul>
+  <li>오류 코드의 의존성 자석</li>
+</ul>
+
+<p>오류 코드는 주로 하나의 파일(Error.java)에서 작성하고 관리되며 이는 다른 클래스에서 사용하는 경우 항상 import를 진행해야한다.</p>
+
+<p>오류 코드가 바뀌는 경우, 해당 파일을 import하는 모든 파일에서 재컴파일/재배치가 일어나며 이는 권장하지 않는 방식이다.<br />
+<br /></p>
+
+<h3 id="반복하지-않는-함수">🧹반복하지 않는 함수</h3>
+
+<p>같은 알고리즘의 코드를 반복적으로 사용하는 것은 재사용성에서 문제가 생긴다. 해당 알고리즘을 수정해야하는 경우 모든 코드를 직접 수정해야한다.<br />
+<br /></p>
+
+<h3 id="참고--구조적-프로그래밍">🧹참고 : 구조적 프로그래밍</h3>
+
+<p>구조적 프로그래밍에서는 return은 하나뿐이며 break, continue 사용을 자제하며 goto의 사용을 절대적으로 금지한다.</p>
+
+<p>하지만, 필자는 목표와 규율은 이해하나 클린코드에서 이야기하는 작은 함수에서는 큰 의미가 없다고 본다.<br />
+<br /></p>
+
+<p>구조적 프로그래밍이 무엇인지 몰랐었는데 절차적 프로그래밍의 하위 개념이라고도 할 수 있다는 <a href="https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%A1%B0%EC%A0%81_%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D">위키백과</a>의 설명으로 이해할 수 있었다.</p>
+
+<h3 id="참고--함수-생성하기">🧹참고 : 함수 생성하기</h3>
+
+<p>함수는 글짓기와 비슷하며 생각을 나열한 후 마음에 들지 않는 것을 계속 고쳐나갈 수 있다.</p>
+
+<p>한번에, 원하는 코드를 작성한 사람은 존재하지 않을 것이다.<br />
+<br /></p>
+
+<h2 id="결론">결론</h2>
+
+<p>이번 챕터를 읽으면서 생각한 내용들을 정리하자면 다음과 같다.</p>
+
+<ol>
+  <li>추상화 수준이 섞이는 것을 조심하자</li>
+  <li>switch문을 최대한 피하고 숨기자</li>
+  <li>인수를 적게 사용하자</li>
+  <li>출력 인수, 플래그 인수는 절대 사용하지 말자</li>
+  <li>명령과 조회가 분리된 함수를 사용하자</li>
+  <li>try-catch 블록을 분리하자</li>
+</ol>
+
+<p>그 중에서도 가장 인상깊었던 내용은 4번에서 “플래그 인수는 절대 사용하지 말자”이다.</p>
+
+<p>클린코드 저자가 “추하고 끔찍하다”라고 표현한 부분이 있었는데 본인이 플래그 인수를 자주 사용하는 편이어서 조금 마음이 아팠다. 최대한 없앨 수 있도록 노력해봐야겠다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[함수]]></summary></entry><entry><title type="html">[Book] Clean Code - 1주차 (0~2장)</title><link href="http://f-hiller.github.io/posts/Book-CleanCode1/" rel="alternate" type="text/html" title="[Book] Clean Code - 1주차 (0~2장)" /><published>2023-09-03T21:28:50+09:00</published><updated>2023-09-14T01:12:59+09:00</updated><id>http://f-hiller.github.io/posts/%5BBook%5DCleanCode1</id><content type="html" xml:base="http://f-hiller.github.io/posts/Book-CleanCode1/"><![CDATA[<h1 id="0-들어가면서">0. 들어가면서</h1>
+
+<p>코드 작성 원칙, 패턴, 실기를 설명하는 파트.</p>
+
+<p>사례 연구를 통해 문제를 해결할 수 있는 코드로 바꾸는 연습 파트.</p>
+
+<p>모든 내용을 정리해서 코드 스멜, 휴리스틱과 같은 면으로 분석한 결과 파트.</p>
+
+<p>클린 코드 책은 위 3가지 파트로 구성되어있다고 한다.<br />
+<br /></p>
+
+<p>책을 읽으면서 내용을 단락별로 요약하고 해당 단락의 끝에 느끼거나 배운 점들에 대해서 간략히 적어보고자 한다.<br />
+<br /></p>
+
+<h1 id="1-깨끗한-코드">1. 깨끗한 코드</h1>
+
+<p>일을 빨리 마무리하기 위해서 나쁜 코드를 어쩔 수 없이 작성한다고 이야기하지만 사실은 깨끗한 코드가 일을 더 빨리 끝낼 수 있다.<br />
+<br /></p>
+
+<p>깨끗한 코드의 정의는 광범위하지만 몇몇 사람들에 의해 다음과 같이 정의되고는 한다.<br />
+<br /></p>
+
+<h3 id="비야네-스트롭스트룹">비야네 스트롭스트룹</h3>
+
+<ol>
+  <li>우아한, 보기에 즐거운 코드.</li>
+  <li>나쁜 코드를 작성하도록 유혹하지 않는 코드. 깨진 창문 효과에서 벗어난 코드.</li>
+  <li>철저한 오류처리가 되는 코드.</li>
+  <li>한 가지 목적에 집중하는 코드.<br />
+<br /></li>
+</ol>
+
+<h3 id="그래디-부치">그래디 부치</h3>
+
+<ol>
+  <li>가독성이 좋은 코드.</li>
+  <li>명쾌한 추상화. 사실에 기반한 필요한 내용 중심.<br />
+<br /></li>
+</ol>
+
+<h3 id="데이브-토마스">데이브 토마스</h3>
+
+<ol>
+  <li>다른 사람이 고치기 쉬운 코드.</li>
+  <li>테스트 케이스가 존재하는 코드.</li>
+  <li>되도록이면 작은 크기의 코드.</li>
+  <li>문학적, 읽기 좋은 코드.<br />
+<br /></li>
+</ol>
+
+<h3 id="마이클-페더스">마이클 페더스</h3>
+
+<ol>
+  <li>주의 깊게 작성한 코드.</li>
+  <li>세세한 사항까지 꼼꼼하게 신경 쓴 깔끔하고 단정하게 정리한 코드.<br />
+<br /></li>
+</ol>
+
+<h3 id="론-제프리스">론 제프리스</h3>
+
+<ol>
+  <li>중복을 피하는 코드.</li>
+  <li>하나의 기능만 수행하는 코드.</li>
+  <li>제대로 표현하는 코드.</li>
+  <li>작게 추상화된 코드.<br />
+<br /></li>
+</ol>
+
+<h3 id="워드-커닝햄">워드 커닝햄</h3>
+
+<ol>
+  <li>읽고 이해하고 다음으로 넘어갈 수 있는 코드.</li>
+  <li>읽으면서 놀랄 일이 없고 머리를 쥐어짤 필요가 없는 코드.</li>
+  <li>명백하고 단순해 마음이 끌리는 코드.<br />
+<br /></li>
+</ol>
+
+<h3 id="마무리">마무리</h3>
+
+<p>보이스카우트 규칙(처음 왔을 때보다 더 깨끗하게 해놓고 떠나라.)은 프로그래머들 사이에서도 유용하다.</p>
+
+<p>이처럼 깨끗한 코드는 사람마다 정의가 다를 수 있지만 이 책은 저자들이 생각한 깨끗한 코드를 소개하고 도입하기를 권장하는 책이다. 클린코드 책을 통해서 하나의 사례를 배우고 코드에 사용해보기를 고려해보는 시간이 되었으면 한다.<br />
+<br /></p>
+
+<h1 id="2-의미-있는-이름">2. 의미 있는 이름</h1>
+
+<p>변수, 함수, 인수, 매개변수, 클래스, 패키지, 소스 파일, 디렉터리 등 아주 많은 곳에서 이름을 사용하고 있으며, 이름을 잘 짓는 것이 클린코드를 위한 하나의 방법이 될 수 있다.<br />
+<br /></p>
+
+<h3 id="의도가-명확한-이름">의도가 명확한 이름</h3>
+
+<p>이름을 지었을 때 한번더 주의 깊게 생각해보자.</p>
+
+<p>해당 키워드(변수, 함수, 클래스와 같은 대상)의 존재 이유는? 수행 기능은? 사용 방법은?</p>
+
+<p>추가적인 주석없이도 이해할 수 있도록 작성하는 것이 좋다.<br />
+<br /></p>
+
+<p>“함수가 어떤 기능을 하는지, 리스트 자료형에 어떤 내용들이 들어있는지, 특정 상수 값이 어떤 의미를 지니는지, 리스트의 n번째 값이 어떤 것을 의미하는지”와 같이 의도를 이름에 담을 수 있도록 하자.<br />
+<br /></p>
+
+<h3 id="그릇된-정보를-제외한-이름">그릇된 정보를 제외한 이름</h3>
+
+<p>자료형, 컨테이너 유형을 이름에 넣지 않는 편이 바람직하며, 다른 사람들이 헷갈려할 수 있는 정보들을 이름에 담아서는 안된다.</p>
+
+<p>비슷한 이름(단어나 철자 한 두개만 달라서 구별하기 힘든 이름)을 사용하지 않는 것이 좋다.</p>
+
+<p>또한 유사한 개념을 가진 대상들은 유사한 표기법을 사용해서 이름을 작성하는 것이 좋다.<br />
+<br /></p>
+
+<h3 id="의미-있게-구분한-이름">의미 있게 구분한 이름</h3>
+
+<p>더 깊게 생각하지 못해 단순한 방식으로 변화시킨 이름들(불용어, noise word)은 의미를 가지지 못한다.</p>
+
+<p>예를 들자면, class 대신 klass라는 이름을 사용하거나 name1, name2와 같이 연속적인 숫자로 구분하는 것이 있겠다. money와 moneyAmount라는 변수가 동시에 있다고 했을 때, 어떤 변수를 언제 써야할지 구분할 수 있겠는가?</p>
+
+<p>이러한 이름들은 정보를 제공하지도, 작성자의 의도를 드러내지도 않는다.<br />
+<br /></p>
+
+<h3 id="발음하기-쉬운-이름">발음하기 쉬운 이름</h3>
+
+<p>인간은 언어에 익숙하기에 발음하기 쉬운 이름의 활용성이 더 높다.</p>
+
+<p>또한, 발음하기 어려운 이름은 다른 사람들과 이야기하기에도 불편해진다.<br />
+<br /></p>
+
+<h3 id="검색하기-쉬운-이름">검색하기 쉬운 이름</h3>
+
+<p>광범위한 코드안에서 원하는 부분을 검색하기 위해서는 검색하기 쉬운 이름이 존재해야한다. 단일 문자나 상수로 표현되는 경우는 검색하기가 분명히 어렵게 될 것이다.</p>
+
+<p>예를 들어, 99라는 숫자와 PAGE_NUMBER라는 상수 중에 무엇이 더 검색하기 쉽겠는가.<br />
+<br /></p>
+
+<h3 id="인코딩을-피하는-이름">인코딩을 피하는 이름</h3>
+
+<p>과거 제한된 언어에서는 헝가리식 표기법과 같이 이름에 다양한 정보를 접두어나 접미어로 표현해주었다.</p>
+
+<p>하지만 언어의 발달로 더이상 그러할 이유가 없을뿐더러 읽기에 불편한 방식을 유지할 필요가 없다.<br />
+<br /></p>
+
+<h3 id="기억력이-필요없는-이름">기억력이 필요없는 이름</h3>
+
+<p>다른 사람이 코드를 읽으면서 이름을 다른 이름으로 변환해야하는 과정이 필요해서는 안된다.</p>
+
+<p>단일 문자로 변수를 만드는 경우가 그러할 것이다. 물론 짧은 루프처럼 범위가 작고 이름이 충돌하지 않는 선에서는 i, j, k와 같은 변수들을 사용해도 될 것이다. 하지만 대부분의 경우는 이러한 경우에 해당하지 않을 것이다.<br />
+<br /></p>
+
+<h3 id="추천--클래스-이름">추천 : 클래스 이름</h3>
+
+<p>Class, 객체의 이름은 명사나 명사구를 추천한다.</p>
+
+<p>Customer, Account와 같은 단어들은 좋지만 Manager, Processor, Data, Info와 같은 단어들은 피하고 동사를 사용하지 않는 것이 좋다.<br />
+<br /></p>
+
+<h3 id="추천--메서드-이름">추천 : 메서드 이름</h3>
+
+<p>메서디의 이름은 동사나 동사구가 적합하다.</p>
+
+<p>postPayment, deletePage와 같은 이름들이 좋으며 특징적인 몇몇 이름들은 get, set, is와 같은 동사로 시작하기도 한다.<br />
+<br /></p>
+
+<p>생성자를 중복정의하는 경우는 정적 팩토리 메서드를 사용한다고 한다. 아래 두 코드를 비교해보면 좋다.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="c1">// 해당 코드가 생성자 인수로 어떤 내용이 전달되는지 알 수 있어 직관적이다.</span>
+<span class="nc">Complex</span> <span class="n">fulcrumPoint</span> <span class="o">=</span> <span class="nc">Complex</span><span class="o">.</span><span class="na">FromRealNumber</span><span class="o">(</span><span class="mf">23.0</span><span class="o">);</span>
+
+<span class="c1">// 어떤 내용이 생성자 인수로 들어가게 되는지 알 수 없다.</span>
+<span class="nc">Complex</span> <span class="n">fulcrumPoint</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Complex</span><span class="o">(</span><span class="mf">23.0</span><span class="o">);</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p><br /></p>
+
+<h3 id="기발하지-않은-이름">기발하지 않은 이름</h3>
+
+<p>일반적인, 명료한 이름을 사용하는 것이 좋다.</p>
+
+<p>구어체, 속어, 특정 문화에서 사용되는 언어, 농담 등은 피하는 것이 좋다.<br />
+<br /></p>
+
+<h3 id="한-개념에-한-단어를-사용하기">한 개념에 한 단어를 사용하기</h3>
+
+<p>예를 들어, 어떤 정보를 가져오는 메서드를 fetch, retrieve, get으로 나눠 사용하는 것보다는 하나로 통일하는 것이 좋다.</p>
+
+<p>유사한 경우로 controller, manager, driver도 있을 수 있다.<br />
+<br /></p>
+
+<h3 id="말장난하지-않는-이름">말장난하지 않는 이름</h3>
+
+<p>기능이 다르다면 이름도 달라야한다.</p>
+
+<p>Class마다 add라는 메소드가 있다고 하면, add라는 메소드는 모두 의미론적으로 같은 기능을 수행해야한다.</p>
+
+<p>하지만 변수 둘을 더하는 의미의 add와 집합에 요소를 추가하는 의미의 add처럼 구분되는 경우가 발생한다면 두 메소드의 이름은 달라져야만 한다.<br />
+<br /></p>
+
+<h3 id="해법-영역에서-가져온-이름">해법 영역에서 가져온 이름</h3>
+
+<p>해법 영역이라는 것은 동업자, 프로그래머들이 주로 사용하는 용어를 사용하라는 것이다.</p>
+
+<p>알지 못하는 고객 측의 문제 영역에서 이름을 가져오는 것보다 전산 용어, 알고리즘 이름, 패턴 이름, 수학 용어 등을 사용하라는 것이다.<br />
+<br /></p>
+
+<h3 id="문제-영역에서-가져온-이름">문제 영역에서 가져온 이름</h3>
+
+<p>앞서 이야기한 해법 영역의 연장선이다.</p>
+
+<p>적절한 프로그래머 용어가 없다면 그때서야 문제 영역에서 이름을 가져오면 된다. 해법 영역과 문제 영역의 이름을 적절히 사용할 줄 아는 것이 프로그래머의 능력이며 이름의 기원이 어디에 더 관련이 깊은 지 파악해보자.<br />
+<br /></p>
+
+<h3 id="의미-있는-맥락을-가지는-이름">의미 있는 맥락을 가지는 이름</h3>
+
+<p>코드를 읽다보면 단어의 뜻은 있지만 어떤 맥락에서 사용되는지 헷갈리는 경우가 있다.</p>
+
+<p>이를 명확히하는 것이 중요하다.</p>
+
+<p>예를 들면, firstName, lastName, street, houseNumber, city라는 변수들이 있다고 할 때 각각의 변수들이 모여 주소를 나타내게 된다. 맥락 상으로 주소를 표현할 때 사용하는 변수들이므로 접두어로 addr과 같은 내용들을 붙여서 분명히 해줄 수 있다. addrFristName, addrStreet와 같이 말이다.<br />
+<br /></p>
+
+<h3 id="불필요한-맥락을-없앤-이름">불필요한 맥락을 없앤 이름</h3>
+
+<p>앞서 이야기한 맥락에 대한 추가적인 이야기이다.</p>
+
+<p>이름이 전달하는 내용이 확실하다면 짧은 편이 좋다.</p>
+
+<p>예를 들자면, accountAddress와 cutomerAddress는 클래스 인스턴스로는 좋지만 클래스의 이름으로 사용하기는 힘들다. 그냥 Address라는 클래스 이름으로도 원하는 의미를 전달할 수 있을 것이다.</p>
+
+<p>포트 주소, MAC 주소, 웹 주소를 구분하는 경우는 PostalAddress, MAC, URI라는 이름으로도 충분히 원하는 내용을 이름에 담을 수 있을 것이다.<br />
+<br /></p>
+
+<h3 id="마무리-1">마무리</h3>
+
+<p>좋은 이름이라는 것은 이름을 사용하는 환경에 따라 결정된다.</p>
+
+<p>반복적이고 암기에 관한 영역은 도구에게 맡기고 꾸준히, 지속적으로 코드를 개선하려고 노력하는 것이 중요하다.<br />
+<br /></p>
+
+<p>이러한 지침들에는 당연하게도 추상적인 내용들이 많다. 모든 경우에 대해서 설명하기에는 그 내용이 방대하기 때문이다. 결국, 이렇게 제시된 조건들을 바탕으로 본인 스스로가 끊임없이 생각하고 이름을 결정하는 것이 중요한 것 같다.</p>]]></content><author><name></name></author><category term="Backend" /><category term="Books" /><category term="Clean Code" /><category term="clean code" /><category term="book" /><summary type="html"><![CDATA[0. 들어가면서]]></summary></entry><entry><title type="html">[BOJ] 웜홀 - 1865 (java)</title><link href="http://f-hiller.github.io/posts/BOJ-1865/" rel="alternate" type="text/html" title="[BOJ] 웜홀 - 1865 (java)" /><published>2023-08-16T16:25:20+09:00</published><updated>2023-08-16T16:48:21+09:00</updated><id>http://f-hiller.github.io/posts/%5BBOJ%5D1865</id><content type="html" xml:base="http://f-hiller.github.io/posts/BOJ-1865/"><![CDATA[<h2 id="문제">문제</h2>
+
+<ul>
+  <li><a href="https://www.acmicpc.net/problem/1865">코딩테스트 연습 - 웜홀</a></li>
+</ul>
+
+<h2 id="풀이">풀이</h2>
+<p>시간을 역행한다는 점에서 음의 간선이 있는 벨만포드 알고리즘을 이용하는 문제였고 문제에서 원하는 바는 음의 간선 순환의 존재 여부였다.
+처음에는 역시 n*n의 배열을 통해서 그래프를 그리고 문제를 진행하였으나 여러 번 실패하였다. 고민과 도움들을 바탕으로 문제를 해결하였고 문제를 실패한 이유에 대해 설명하자면 다음과 같다.</p>
+<ol>
+  <li>모든 정점끼리 연결되어있음이 보장되지 않는다.
+이는 하나의 정점에서 실행한 벨만-포드 알고리즘으로는 연결되지 않은 그래프에서 발생하는 음의 간선 순환을 확인할 수 없다는 뜻이다. 즉, 모든 정점에서 벨만-포드 알고리즘을 확인해봐야한다. 하지만 이는 다음 문제점으로 이어진다.</li>
+  <li>벨만-포드 알고리즘의 시간 복잡도는 O(n*m)이다.
+1번에서 설명한 내용대로 모든 정점에서 벨만-포드 알고리즘을 실행하면 시간 복잡도는 O(n*n*m)으로 문제를 해결하였다고 말하기 애매한 느낌이었다.</li>
+</ol>
+
+<p>이에 따라 나름 최선을 다하였지만 실패했고 다음의 게시글을 참고하여 문제 해결에 도움을 받을 수 있었다. <a href="https://www.acmicpc.net/board/view/72995">게시글 링크</a></p>
+
+<p>모든 정점을 방문하는 방법은 다음과 같았다.</p>
+<ol>
+  <li>모든 정점의 distance를 0으로 초기화하여 시작한다.
+의미론적으로 distance가 0으로 초기화된 정점이 시작점이라고 하였으므로 모든 정점의 시작값을 0으로 초기화해주면 된다.</li>
+  <li>가상의 n+1번째 정점을 추가한 뒤, 다른 모든 정점으로 0의 가중치로 이동하는 단방향 간선(해당 문제에서는 시간이 0인 웜홀이 될 것이다.)을 설치해준다.
+0의 가중치로 모든 정점에 도달할 수 있으므로 모든 정점을 방문하는 것이 가능하다.</li>
+</ol>
+
+<p>이 문제에서도 두 정점을 연결하는 도로가 여러 개 있을 수 있다고 하였는데, 해당 문제에서는 크게 고려할 사항이 아니었다. 앞선 문제의 경우에는 최단경로와 그 길이를 구하는 것이 핵심이었지만 해당 문제는 음의 간선 순환이 존재하는 지 여부가 핵심으로 정점과 간선 수에 따른 메모리 초과, 공간 부족 등을 고려하지 않아도 되었다.</p>
+
+<h3 id="코드">코드</h3>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+</pre></td><td class="rouge-code"><pre>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">solve</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">br</span><span class="o">.</span><span class="na">readLine</span><span class="o">());</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">t</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="kt">boolean</span> <span class="n">checkContinue</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="nc">String</span><span class="o">[]</span> <span class="n">input</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="na">readLine</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">" "</span><span class="o">);</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">input</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">input</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+            <span class="kt">int</span> <span class="n">w</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">input</span><span class="o">[</span><span class="mi">2</span><span class="o">]);</span>
+
+            <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Triple</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">graph</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;();</span>
+
+            <span class="kt">int</span> <span class="n">go</span><span class="o">,</span> <span class="n">to</span><span class="o">,</span> <span class="n">value</span><span class="o">;</span>
+            <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">m</span> <span class="o">+</span> <span class="n">w</span><span class="o">;</span> <span class="n">j</span><span class="o">++)</span> <span class="o">{</span>
+                <span class="n">input</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="na">readLine</span><span class="o">().</span><span class="na">split</span><span class="o">(</span><span class="s">" "</span><span class="o">);</span>
+                <span class="n">go</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">input</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+                <span class="n">to</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">input</span><span class="o">[</span><span class="mi">1</span><span class="o">]);</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">input</span><span class="o">[</span><span class="mi">2</span><span class="o">]);</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">m</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">graph</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">Triple</span><span class="o">&lt;&gt;(</span><span class="n">go</span><span class="o">,</span> <span class="n">to</span><span class="o">,</span> <span class="n">value</span><span class="o">));</span>
+                    <span class="n">graph</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">Triple</span><span class="o">&lt;&gt;(</span><span class="n">to</span><span class="o">,</span> <span class="n">go</span><span class="o">,</span> <span class="n">value</span><span class="o">));</span>
+                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                    <span class="n">graph</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">Triple</span><span class="o">&lt;&gt;(</span><span class="n">go</span><span class="o">,</span> <span class="n">to</span><span class="o">,</span> <span class="o">-</span><span class="n">value</span><span class="o">));</span>
+                <span class="o">}</span>
+
+            <span class="o">}</span>
+            <span class="n">bellmanFord</span><span class="o">(</span><span class="n">graph</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">bellmanFord</span><span class="o">(</span><span class="nc">List</span><span class="o">&lt;</span><span class="nc">Triple</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;&gt;</span> <span class="n">graph</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">int</span><span class="o">[]</span> <span class="n">distance</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">int</span><span class="o">[</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="o">];</span>
+        <span class="nc">Arrays</span><span class="o">.</span><span class="na">fill</span><span class="o">(</span><span class="n">distance</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="k">for</span> <span class="o">(</span><span class="nc">Triple</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">element</span> <span class="o">:</span> <span class="n">graph</span><span class="o">)</span> <span class="o">{</span>
+                <span class="kt">int</span> <span class="n">go</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="na">first</span><span class="o">;</span>
+                <span class="kt">int</span> <span class="n">to</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="na">second</span><span class="o">;</span>
+                <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="na">third</span><span class="o">;</span>
+                <span class="k">if</span> <span class="o">(</span><span class="n">distance</span><span class="o">[</span><span class="n">to</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">distance</span><span class="o">[</span><span class="n">go</span><span class="o">]</span> <span class="o">+</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">distance</span><span class="o">[</span><span class="n">to</span><span class="o">]</span> <span class="o">=</span> <span class="n">distance</span><span class="o">[</span><span class="n">go</span><span class="o">]</span> <span class="o">+</span> <span class="n">value</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">for</span> <span class="o">(</span><span class="nc">Triple</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">element</span> <span class="o">:</span> <span class="n">graph</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">go</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="na">first</span><span class="o">;</span>
+            <span class="kt">int</span> <span class="n">to</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="na">second</span><span class="o">;</span>
+            <span class="kt">int</span> <span class="n">value</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="na">third</span><span class="o">;</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">distance</span><span class="o">[</span><span class="n">to</span><span class="o">]</span> <span class="o">&gt;</span> <span class="n">distance</span><span class="o">[</span><span class="n">go</span><span class="o">]</span> <span class="o">+</span> <span class="n">value</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">distance</span><span class="o">[</span><span class="n">to</span><span class="o">]</span> <span class="o">=</span> <span class="n">distance</span><span class="o">[</span><span class="n">go</span><span class="o">]</span> <span class="o">+</span> <span class="n">value</span><span class="o">;</span>
+                <span class="n">print</span><span class="o">(</span><span class="s">"YES"</span><span class="o">);</span>
+                <span class="k">return</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="n">print</span><span class="o">(</span><span class="s">"NO"</span><span class="o">);</span>
+    <span class="o">}</span>
+</pre></td></tr></tbody></table></code></pre></div></div>]]></content><author><name></name></author><category term="ProblemSolving" /><category term="BOJ" /><category term="bellman-ford" /><category term="골드 3" /><category term="java" /><summary type="html"><![CDATA[문제]]></summary></entry></feed>
